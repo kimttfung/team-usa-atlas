@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/app.html" }
+  ],
+  "cleanUrls": false,
+  "trailingSlash": false
+}

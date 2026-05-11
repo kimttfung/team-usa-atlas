@@ -1,0 +1,179 @@
+/* =========================================================
+   Team USA Atlas — tokens.css
+   Design tokens: color ramps, neutrals, accents, spacing,
+   radius, shadow, and the dark-theme overrides applied via
+   [data-theme="dark"] on <html> by lib/theme.js.
+   ========================================================= */
+
+
+/* =========================================================
+   Team USA Atlas — design tokens (warm-soft + utility hybrid)
+   ========================================================= */
+:root {
+  /* modern command-center surface system — premium cool slate */
+  --bg:        #F2F5FA;
+  --surface:   #FFFFFF;
+  --surface-2: #EDF1F7;
+  --surface-3: #DCE4F0;
+
+  --fg:        #1F2937;
+  --fg-strong: #0B1220;
+  --muted:     #56627A;
+  --muted-2:   #8893A8;
+
+  --border:        #E0E6F0;
+  --border-strong: #C2CCDC;
+
+  /* signal — indigo primary, distinct from blue map ramp */
+  --primary:     #4F46E5;
+  --primary-50:  #EEF2FF;
+  --primary-100: #E0E7FF;
+  --primary-200: #C7D2FE;
+  --primary-600: #4F46E5;
+  --primary-700: #4338CA;
+
+  --primary-glow: #818CF8;
+  --primary-soft: rgba(79, 70, 229, 0.14);
+
+  /* paralympic — teal, visually equal in weight, distinct from indigo + blue ramp */
+  --paralympic:     #0D9488;
+  --paralympic-50:  #ECFDF5;
+  --paralympic-100: #CCFBF1;
+  --paralympic-600: #0D9488;
+  --paralympic-glow: #14B8A6;
+  --paralympic-soft: rgba(13, 148, 136, 0.14);
+
+  /* olympic — clear royal blue, the visual counterpart to --paralympic
+     (used for left-rule accents on Olympic frame cards, etc.) */
+  --olympic:     #2563EB;
+  --olympic-50:  #EFF6FF;
+  --olympic-100: #DBEAFE;
+  --olympic-600: #2563EB;
+  --olympic-soft: rgba(37, 99, 235, 0.14);
+
+  /* status */
+  --ok:     #16A34A;
+  --warn:   #D97706;
+  --danger: #DC2626;
+
+  /* season accents — warm rose (summer) vs cool slate (winter). Tuned to fit
+     the premium cool-slate theme and read clearly distinct from the
+     Olympic/Paralympic split bar directly above (indigo + teal in light,
+     cyan + emerald in dark). Replaces the earlier amber/sky pair which
+     felt imported from a weather widget rather than a data dashboard. */
+  --season-summer: #FB7185;
+  --season-winter: #64748B;
+
+  /* unified map ramp — pure blue family, strong contrast at BOTH ends */
+  /* low end clearly tinted (not bleeding into bg), high end deep saturated navy */
+  --ramp-0: #BCD0EE;
+  --ramp-1: #8FB1E0;
+  --ramp-2: #5F88D0;
+  --ramp-3: #3661BD;
+  --ramp-4: #1A45A6;
+  --ramp-5: #0E2871;
+
+  /* Parity Lens map ramp — teal/green to align with the Paralympic accent
+     so Para-related views read as one visual family (light → dark teal). */
+  --parity-0: #D6F5EE;
+  --parity-1: #A6E5D5;
+  --parity-2: #6FCFB7;
+  --parity-3: #2FB39B;
+  --parity-4: #0D8C7F;
+  --parity-5: #0A5F58;
+
+  /* unified content grid — used by Atlas, Parity Lens, Compare for visual consistency */
+  --content-grid: minmax(0, 1.55fr) minmax(0, 1fr);
+  --content-gap: 18px;
+
+  /* type */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* radius / shadow / motion */
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+  --r-4: 20px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow:    0 4px 12px -4px rgba(15, 23, 42, 0.10), 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 18px 40px -16px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.07);
+  --ease: cubic-bezier(.32,.72,.32,1);
+
+  /* layout */
+  --sidebar-w: 240px;
+  --topbar-h: 64px;
+  --filter-h: 56px;
+}
+
+[data-theme="dark"] {
+  /* polished hacker / data-terminal — near-pitch surfaces, electric cyan */
+  --bg:        #02050E;
+  --surface:   #0F1830;
+  --surface-2: #172139;
+  --surface-3: #243152;
+
+  --fg:        #E4EBF7;
+  --fg-strong: #FFFFFF;
+  --muted:     #A8B5D1;
+  --muted-2:   #8696B5;
+
+  --border:    #2D3C5F;
+  --border-strong: #4A5A7E;
+
+  /* electric cyan accent — distinct from blue map ramp */
+  --primary:     #22D3EE;
+  --primary-50:  rgba(34, 211, 238, 0.12);
+  --primary-100: rgba(34, 211, 238, 0.18);
+  --primary-200: rgba(34, 211, 238, 0.30);
+  --primary-600: #22D3EE;
+  --primary-700: #0891B2;
+
+  --primary-glow: #67E8F9;
+  --primary-soft: rgba(34, 211, 238, 0.16);
+
+  /* paralympic — emerald in dark to stay distinct from cyan primary */
+  --paralympic:     #34D399;
+  --paralympic-50:  rgba(52, 211, 153, 0.12);
+  --paralympic-100: rgba(52, 211, 153, 0.18);
+  --paralympic-600: #34D399;
+  --paralympic-glow: #6EE7B7;
+  --paralympic-soft: rgba(52, 211, 153, 0.16);
+
+  /* olympic — bright sky blue in dark, brighter than the dark map ramp so it
+     reads as a pure-blue accent against deep slate (sibling of --paralympic). */
+  --olympic:     #7DACFF;
+  --olympic-50:  rgba(125, 172, 255, 0.12);
+  --olympic-100: rgba(125, 172, 255, 0.18);
+  --olympic-600: #7DACFF;
+  --olympic-soft: rgba(125, 172, 255, 0.16);
+
+  /* season accents — lighter rose + soft slate-grey for dark theme so they
+     glow against deep slate, matching the visual weight of --olympic
+     (sky blue) and --paralympic (emerald) on the bar above. */
+  --season-summer: #FDA4AF;
+  --season-winter: #94A3B8;
+
+  /* unified map ramp dark — low end clearly distinct from #02050E bg, glows brighter at high end */
+  --ramp-0: #2F4A82;
+  --ramp-1: #3D6BBF;
+  --ramp-2: #4F8DE8;
+  --ramp-3: #7DACFF;
+  --ramp-4: #A8C9FF;
+  --ramp-5: #DCEAFF;
+
+  /* Parity Lens map ramp dark — teal/green family inverted (deep teal floor,
+     bright glow at high end) to mirror the Paralympic accent. */
+  --parity-0: #0F3B38;
+  --parity-1: #145E54;
+  --parity-2: #1E8A7B;
+  --parity-3: #34D399;
+  --parity-4: #6EE7B7;
+  --parity-5: #BBF7D0;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.55);
+  --shadow:    0 6px 16px -6px rgba(0,0,0,0.70), 0 1px 2px rgba(0,0,0,0.50);
+  --shadow-lg: 0 24px 48px -20px rgba(0,0,0,0.80), 0 4px 10px rgba(0,0,0,0.50);
+}
+

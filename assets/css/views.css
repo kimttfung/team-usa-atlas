@@ -1,0 +1,2064 @@
+/* =========================================================
+   Team USA Atlas — views.css
+   Per-page styling: Atlas, Sport Explorer, Parity Lens,
+   Compare Regions, Ask the Analyst, Methodology — plus the
+   Phase A+ refinements (focus rings, mobile breakpoints,
+   denser bar lists, Ask page chrome) that built on top.
+   ========================================================= */
+
+
+/* ============== Atlas view ==============
+   The "Atlas Overview" page: choropleth state map on the left + a
+   right column that swaps between the all-states "Current View" card
+   and the per-state detail panel. Sub-cards under the map show
+   sports + hubs aggregated against the current filter set. */
+.atlas-grid {
+  display: grid;
+  grid-template-columns: var(--content-grid);
+  gap: var(--content-gap);
+}
+.atlas-left { display: flex; flex-direction: column; gap: var(--content-gap); min-width: 0; }
+
+/* Sports + Hubs sub-cards card under the map (mirrors parity-bars-row pattern) */
+.atlas-bars-card { padding: 0; overflow: hidden; }
+.atlas-bars-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: var(--surface);
+}
+.atlas-bars-col { padding: 16px 0 18px; min-width: 0; }
+.atlas-bars-col + .atlas-bars-col { border-left: 1px solid var(--border); }
+.atlas-bars-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 0 18px 4px;
+}
+.atlas-bars-head h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.atlas-bars-head .meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted-2);
+  letter-spacing: 0.02em;
+}
+.atlas-bars-card .sport-list,
+.atlas-bars-card .hub-list { padding: 14px 18px 0; }
+@media (max-width: 1380px) {
+  .atlas-bars-row { grid-template-columns: 1fr; }
+  .atlas-bars-col + .atlas-bars-col { border-left: 0; border-top: 1px solid var(--border); }
+}
+
+/* (Aggregate Snapshot card removed — its contents folded into the Atlas
+   "Current View" card; see .atlas-current__* rules.) */
+
+
+/* ============== Atlas — state detail panel + climate ==============
+   When the user clicks a state on the map, the right column swaps to
+   the state-detail panel: hero stats + Olympic/Paralympic split + a
+   Top Sports/Hubs sub-card + the climate-context card (NOAA normals)
+   + Similar State Profiles peer chips. */
+.state-panel { display: flex; flex-direction: column; gap: 18px; }
+.state-overview { padding: 18px; }
+.state-overview__head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.state-overview__identity { min-width: 0; }
+.state-overview__identity h2 { margin: 4px 0 0; }
+.state-overview__reset {
+  display: inline-flex; align-items: center; gap: 6px;
+  flex: 0 0 auto;
+  height: 28px;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: border-color .14s var(--ease), color .14s var(--ease), background .14s var(--ease), transform .14s var(--ease);
+}
+.state-overview__reset svg { width: 13px; height: 13px; flex: 0 0 auto; opacity: 0.85; }
+.state-overview__reset:hover {
+  border-color: var(--primary-100);
+  color: var(--primary);
+  background: var(--primary-50);
+  transform: translateY(-1px);
+}
+.state-overview__reset:active { transform: translateY(0); }
+.state-overview.is-national .state-overview__reset {
+  border-color: var(--primary-100);
+  color: var(--primary);
+  background: var(--primary-50);
+}
+.state-overview .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.state-overview h2 {
+  margin: 4px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  letter-spacing: -0.02em;
+}
+.state-stats {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.stat {
+  background: var(--surface);
+  padding: 12px 14px;
+}
+.stat .label { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.stat .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+.stat .delta { font-size: 11px; color: var(--muted-2); margin-top: 2px; font-family: var(--font-mono); }
+.stat--accent .value { color: var(--primary); }
+.stat--paralympic .value { color: var(--paralympic-600); }
+
+.split-bar {
+  margin-top: 14px;
+  height: 12px; border-radius: 6px;
+  background: var(--surface-2);
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.split-bar__seg--oly  { background: var(--primary); }
+.split-bar__seg--para { background: var(--paralympic-600); }
+.split-bar__seg--summer { background: var(--season-summer); }
+.split-bar__seg--winter { background: var(--season-winter); }
+.split-bar--season { margin-top: 10px; }
+.split-bar-legend {
+  display: flex; gap: 14px; margin-top: 8px;
+  font-size: 11px; color: var(--muted);
+}
+.split-bar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.split-bar-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.split-bar-legend .oly  { background: var(--primary); }
+.split-bar-legend .para { background: var(--paralympic-600); }
+.split-bar-legend .summer { background: var(--season-summer); }
+.split-bar-legend .winter { background: var(--season-winter); }
+
+/* state-overview consolidated subsections (Top sports + Top hubs live inside the state card) */
+.state-overview__sub {
+  margin: 18px -18px 0;
+  border-top: 1px solid var(--border);
+}
+.state-overview__sub-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 0;
+}
+.state-overview__sub-head h3 {
+  margin: 0;
+  font-size: 13px; font-weight: 600;
+  color: var(--fg-strong);
+}
+.state-overview__sub-head .meta {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted-2);
+  letter-spacing: 0.02em;
+}
+.state-overview__sub .sport-list,
+.state-overview__sub .hub-list { padding-top: 12px; }
+
+/* sport list — gap matches .bar-list and .hub-list for visually identical row spacing */
+.sport-list { display: flex; flex-direction: column; gap: 8px; padding: 14px 18px 18px; }
+.sport-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 38px;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+}
+.sport-row .name {
+  font-size: 12.5px; color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sport-row .bar  { height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; position: relative; }
+.sport-row .bar > i {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+  border-radius: 4px;
+  width: 0;
+  transition: width .9s var(--ease);
+}
+.sport-row .bar > i.season-winter { background: linear-gradient(90deg, var(--ramp-3), var(--ramp-5)); }
+.sport-row .count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); text-align: right; }
+
+/* hubs — gap matches .sport-list (8px) so Atlas left column reads as one consistent rhythm */
+.hub-list { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+.hub-row {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center;
+  padding: 8px 10px;
+  border-radius: var(--r-1);
+  background: var(--surface-2);
+}
+.hub-row .city { font-size: 12.5px; font-weight: 500; color: var(--fg); }
+.hub-row .city span { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted-2); margin-left: 6px; }
+.hub-row .ratio {
+  font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.hub-row .ratio i { width: 7px; height: 7px; border-radius: 50%; }
+.hub-row .ratio i.oly  { background: var(--primary); }
+.hub-row .ratio i.para { background: var(--paralympic-600); }
+.hub-row .total { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--fg-strong); }
+
+/* climate context block */
+.climate-block { padding: 14px 18px 18px; }
+.climate-empty {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 6px 2px 4px;
+}
+.climate-empty svg {
+  width: 28px; height: 28px;
+  color: var(--primary);
+  opacity: 0.7;
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+.climate-empty__title {
+  font-size: 13px;
+  color: var(--fg-strong);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.climate-empty__sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.climate-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.climate-row:last-child { border-bottom: 0; }
+.climate-row .k { font-size: 12px; color: var(--muted); }
+.climate-row .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--fg-strong); font-weight: 500; }
+
+/* climate mini-charts (temp line + precip bars, side-by-side).
+   Both charts share one row at full content width; gap and padding
+   are sized so the SVGs render large enough to read individual
+   month labels. The mobile breakpoint stacks them vertically. */
+.climate-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 16px;
+}
+.climate-charts__cell { min-width: 0; }
+.climate-charts__label {
+  font-size: 11px;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+@media (max-width: 760px) { .climate-charts { grid-template-columns: 1fr; gap: 14px; } }
+
+/* mini chart primitives shared by Atlas climate panel + Compare climate rows */
+.mini-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.mini-chart-grid {
+  stroke: var(--border);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 3;
+}
+.mini-chart-axis {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 8.5px;
+  fill: var(--muted);
+  letter-spacing: 0.02em;
+}
+.mini-chart-axis--x { font-size: 9px; fill: var(--muted-2); }
+.mini-chart-line--warm {
+  fill: none;
+  stroke: var(--accent-warm, #ED6A3C);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mini-chart-dot--warm { fill: var(--accent-warm, #ED6A3C); }
+.mini-chart-bar--cool { fill: var(--accent-cool, #3D6BBF); opacity: 0.85; }
+.mini-chart-bar--null { fill: var(--accent-cool, #3D6BBF); opacity: 0.15; }
+.mini-chart-empty {
+  font-size: 11px;
+  color: var(--muted-2);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+
+/* ============== Parity Lens ==============
+   Olympic vs. Paralympic balance across states. Three view modes
+   (Share / Balance / Both) drive the bar lists and the headline
+   "Parity Spotlight" card. The min-athletes input filters out tiny
+   denominators that would otherwise produce noisy 100% / 0% extremes. */
+.parity-grid {
+  display: grid;
+  grid-template-columns: var(--content-grid);
+  gap: var(--content-gap);
+  align-items: start;
+}
+/* Parity-specific map ramp (overrides shared --ramp tokens with the teal scale, only inside .parity-card) */
+.parity-card .heat-0 { fill: var(--parity-0); }
+.parity-card .heat-1 { fill: var(--parity-1); }
+.parity-card .heat-2 { fill: var(--parity-2); }
+.parity-card .heat-3 { fill: var(--parity-3); }
+.parity-card .heat-4 { fill: var(--parity-4); }
+.parity-card .heat-5 { fill: var(--parity-5); }
+.parity-card .map-state {
+  stroke: color-mix(in oklch, var(--surface) 60%, transparent);
+  stroke-width: 0.7;
+}
+[data-theme="dark"] .parity-card .map-state {
+  stroke: color-mix(in oklch, var(--bg) 70%, transparent);
+}
+/* Parity LEFT column: stacked map card + bars card (mirrors .atlas-left) */
+.parity-left { display: flex; flex-direction: column; gap: var(--content-gap); min-width: 0; }
+
+/* Parity bars card reuses .atlas-bars-card styles; just override bar-list padding */
+.parity-bars-card .bar-list { padding: 14px 18px 18px; }
+
+@media (max-width: 1380px) {
+  .parity-bars-card .atlas-bars-row { grid-template-columns: 1fr; }
+  .parity-bars-card .atlas-bars-col + .atlas-bars-col { border-left: 0; border-top: 1px solid var(--border); }
+}
+
+
+/* ============== Sport Explorer ==============
+   Picker-driven page: choose a sport to see its national footprint,
+   top states, hometown hubs, and Olympic/Paralympic + Summer/Winter
+   splits. The Sport Variety ranking on the right is global (not tied
+   to the picker) so it stays meaningful even before a sport is picked. */
+/* Sport bars card mirrors parity-bars-card — restores the horizontal padding the bare .bar-list lacks */
+.sport-bars-card .bar-list { padding: 14px 18px 18px; }
+@media (max-width: 1380px) {
+  .sport-bars-card .atlas-bars-row { grid-template-columns: 1fr; }
+  .sport-bars-card .atlas-bars-col + .atlas-bars-col { border-left: 0; border-top: 1px solid var(--border); }
+}
+
+/* Sport profile body uses the same state-stats grid + split-bar pattern as Atlas state overview */
+.sport-profile__body { padding: 14px 18px 18px; }
+.sport-profile__body .split-bar { margin-top: 14px; }
+
+/* Footprint Type chip — one-line classification sits between the KPI grid and the split-bar */
+.sport-footprint-chip {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sport-footprint-chip__main {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+.sport-footprint-chip__label {
+  font-size: 11px; font-weight: 600; color: var(--muted-2);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.sport-footprint-chip__type {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg-strong);
+  letter-spacing: -0.005em;
+}
+.sport-footprint-chip__detail {
+  font-size: 12.5px; color: var(--muted);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+}
+.sport-footprint-chip__share {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--fg-strong); font-weight: 600;
+}
+.sport-footprint-chip__caveat {
+  font-size: 11.5px; color: var(--muted-2); line-height: 1.4;
+}
+
+/* State Spread summary card */
+.sport-spread-card .sport-spread__body {
+  padding: 12px 18px 16px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 1.55;
+}
+.sport-spread__sport { font-weight: 600; color: var(--fg-strong); }
+.sport-spread__num {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--fg-strong); font-weight: 600;
+}
+
+/* Top Hometown Hubs for This Sport — bar-list with extra columns */
+.sport-hubs-card .sport-hubs__list {
+  padding: 14px 18px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sport-hub-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.5fr) 1fr 42px 48px 100px;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+}
+.sport-hub-row__city {
+  font-size: 12.5px;
+  color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sport-hub-row__bar {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.sport-hub-row__bar > i {
+  position: absolute; inset: 0 auto 0 0;
+  border-radius: 4px;
+  width: 0;
+  transition: width .9s var(--ease);
+  background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+}
+.sport-hub-row__count,
+.sport-hub-row__share {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 12px; color: var(--muted); text-align: right;
+}
+.sport-hub-row__split {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 11.5px; color: var(--muted-2); text-align: right; white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .sport-hub-row {
+    grid-template-columns: 1fr 56px 64px;
+    row-gap: 4px;
+  }
+  .sport-hub-row__bar,
+  .sport-hub-row__split { display: none; }
+}
+
+/* Animation delays for the sport-explorer left column (profile + bars) — pickers now live in the global filterbar */
+.view[data-view="sport"][data-active="true"] .parity-left > .card:nth-child(1) { animation-delay: 60ms; }
+.view[data-view="sport"][data-active="true"] .parity-left > .card:nth-child(2) { animation-delay: 180ms; }
+
+/* Bar rows — pixel-identical to Atlas .sport-row: 110px label / 1fr bar / 38px value, 8px row gap */
+.bar-list { display: flex; flex-direction: column; gap: 8px; }
+.bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 38px;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+}
+.bar-row .label {
+  font-size: 12.5px;
+  color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bar-row .bar {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.bar-row .bar > i {
+  position: absolute; inset: 0 auto 0 0;
+  border-radius: 4px;
+  width: 0;
+  transition: width .9s var(--ease);
+  background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+}
+.bar-row.bar--para  .bar > i { background: linear-gradient(90deg, var(--paralympic), var(--paralympic-glow)); }
+.bar-row.bar--oly   .bar > i { background: linear-gradient(90deg, var(--primary), var(--primary-glow)); }
+.bar-row.bar--blend .bar > i { background: linear-gradient(90deg, var(--paralympic), var(--primary)); }
+.bar-row .v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+
+/* ============== Compare Regions ==============
+   Two-state side-by-side comparison page. The left column hosts the
+   A/B pickers + the headline "At a Glance" + "Most Distinct" cards;
+   the right column stacks Sport / Hub / Climate diff lists. Both
+   states must be picked before the comparison cards reveal. */
+/* compare-pickers now live INSIDE the left column */
+.compare-pickers {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.compare-picker {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+}
+.compare-picker .swatch {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+  color: #fff;
+  flex: 0 0 auto;
+}
+.compare-picker.left  .swatch { background: var(--primary); }
+.compare-picker.right .swatch { background: var(--paralympic-600); }
+.compare-picker__body { flex: 1; min-width: 0; }
+/* Label + selected-state name (selects now live in the page filterbar) */
+.compare-picker__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.compare-picker__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compare-picker__total {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 18px; font-weight: 600; color: var(--fg-strong);
+  text-align: right;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.compare-picker__total small { display: block; font-size: 10px; color: var(--muted-2); font-weight: 500; margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* 2-column compare layout — pickers + profile on LEFT, insight on RIGHT */
+.compare-content {
+  display: grid;
+  grid-template-columns: var(--content-grid);
+  gap: var(--content-gap);
+  align-items: start;
+}
+.compare-left {
+  display: flex; flex-direction: column; gap: 14px;
+  min-width: 0;
+}
+.compare-content > .gemini { margin-top: 0; }
+@media (max-width: 1180px) {
+  .compare-content { grid-template-columns: 1fr; gap: 18px; }
+}
+
+.compare-rows { padding: 8px 0; }
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 130px 1fr;
+  align-items: center;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.compare-row:last-child { border-bottom: 0; }
+.compare-row .k { text-align: center; font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.compare-row .v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px; font-weight: 600; color: var(--fg-strong);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.compare-row .v.left  { text-align: right; padding-right: 18px; }
+.compare-row .v.right { text-align: left;  padding-left: 18px; }
+.compare-row .v small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  font-family: var(--font-body);
+  margin-top: 6px;
+  letter-spacing: 0;
+}
+.compare-row .v.lead.left  { color: var(--primary); }
+.compare-row .v.lead.right { color: var(--paralympic-600); }
+.compare-row .bar {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  height: 6px; border-radius: 3px; overflow: hidden;
+  position: relative;
+  background: var(--surface-2);
+}
+.compare-row .bar i.l { background: var(--primary);         justify-self: end; height: 6px; transition: width .9s var(--ease); }
+.compare-row .bar i.r { background: var(--paralympic-600);                     height: 6px; transition: width .9s var(--ease); }
+
+/* Hometown Concentration row — same mirror-bar treatment, but the value
+   strings ("Top 3 hubs: 42%") are short text labels so the default 28px is
+   too loud. Caption sits under the bar in muted body text. */
+.compare-row.compare-row--concentration .v { font-size: 18px; }
+.cmp-row-caption {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted-2);
+  font-weight: 500;
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* Profile-label chips — pill-shaped chips below each picker, tinted to the
+   side's identity color. Hidden until both states are picked. */
+.cmp-profile-labels-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: -4px;
+}
+.cmp-profile-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cmp-profile-chip {
+  font-size: 11.5px;
+  line-height: 1.2;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.cmp-profile-labels.left .cmp-profile-chip {
+  color: var(--primary);
+  background: var(--primary-50);
+  border-color: var(--primary-100);
+}
+.cmp-profile-labels.right .cmp-profile-chip {
+  color: var(--paralympic-600);
+  background: var(--paralympic-50);
+  border-color: var(--paralympic-100);
+}
+@media (max-width: 720px) {
+  .cmp-profile-labels-row { grid-template-columns: 1fr; }
+}
+
+/* "no states picked yet" placeholder rendered into #compareRows */
+.compare-empty {
+  padding: 22px 12px;
+  font-size: 13px;
+  color: var(--muted-2);
+  text-align: center;
+  line-height: 1.6;
+}
+.compare-empty b { color: var(--fg); font-weight: 600; }
+
+
+/* ============== Ask the Analyst ==============
+   Free-text + suggested-question page. Left column = chat thread;
+   right column = suggested questions grouped by category (Geography
+   / Sports / Parity / Compare / Climate). Free-text input is routed
+   to the matching SUGGESTED_QUESTIONS handler when a confident
+   intent match is found. */
+.ask-grid {
+  display: grid;
+  grid-template-columns: var(--content-grid);
+  gap: var(--content-gap);
+}
+.ask-thread {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  height: calc(100vh - var(--topbar-h) - var(--filter-h) - 96px);
+  min-height: 540px;
+}
+.ask-thread__head {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  /* Slightly more breathing room top + bottom so the New Chat button
+     never crowds the chat content scrolling beneath it. */
+  padding: 12px 14px 12px;
+  /* Divider line — visually separates the action row from the message
+     thread underneath, especially while the user is scrolling and chat
+     content would otherwise butt right up against the button. */
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  /* Pin to the top of the .ask-thread column so the button stays
+     reachable as the user scrolls older messages into view. */
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.ask-newchat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease);
+}
+.ask-newchat:hover {
+  background: var(--primary-50);
+  color: var(--primary);
+  border-color: var(--primary-100);
+}
+.ask-newchat:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.ask-newchat svg { display: block; }
+.ask-messages {
+  flex: 1;
+  padding: 22px 24px;
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+  gap: 18px;
+}
+.ask-msg { display: flex; gap: 10px; max-width: 100%; }
+.ask-msg .ava {
+  /* Both user and bot avatars share the same 30x30 footprint so chat
+     bubbles line up at the same x-position down the column and avatar
+     metrics match across rows. Gemini glyph (22px) is centered inside
+     the 30px box; the box itself is invisible on bot rows since the
+     bot avatar background is transparent. margin-top:1 puts the
+     avatar's center at y≈16px, which matches the first body text line. */
+  width: 30px; height: 30px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 600; color: #fff;
+  flex: 0 0 30px;
+  margin-top: 1px;
+}
+.ask-msg.user .ava {
+  background: linear-gradient(135deg, var(--muted), var(--fg));
+  color: #fff;
+}
+.ask-msg.user .ava svg { width: 22px; height: 22px; display: block; }
+.ask-msg.bot  .ava { background: transparent; color: inherit; }
+.ask-msg .ava--gem { position: relative; }
+.ask-msg .ava--gem img,
+.ask-msg .ava--gem svg { width: 22px; height: 22px; display: block; }
+.ask-msg .ava--gem::after {
+  /* Anchored at inset:1px relative to the 30px parent so the ripple's
+     resting border-box is 28x28 — same size as before the parent grew
+     from 22 to 30. The gemAvaPulse keyframe still scales 0.92 → 1.08
+     for an identical visual peak (~30.2px) around the 22px glyph. */
+  content: ''; position: absolute; inset: 1px; border-radius: 8px;
+  border: 1px solid color-mix(in oklch, var(--primary) 28%, transparent);
+  animation: gemAvaPulse 2.4s var(--ease) infinite;
+  pointer-events: none;
+}
+@keyframes gemAvaPulse {
+  0%, 100% { opacity: 0; transform: scale(0.92); }
+  50%      { opacity: 1; transform: scale(1.08); }
+}
+.ask-msg .body { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-2); padding: 11px 14px; font-size: 13px; line-height: 1.55; flex: 1; min-width: 0; }
+.ask-msg.user .body { background: var(--primary-50); border-color: var(--primary-100); color: var(--fg-strong); }
+.ask-msg .meta { font-size: 11px; color: var(--muted-2); font-family: var(--font-mono); margin-bottom: 4px; }
+.ask-msg .body p { margin: 0 0 8px; }
+.ask-msg .body p:last-child { margin-bottom: 0; }
+.ask-msg .body .accent { color: var(--primary); font-weight: 600; }
+.ask-msg .body .para-accent { color: var(--paralympic-600); font-weight: 600; }
+.ask-msg .body strong { font-weight: 600; color: var(--fg-strong); }
+.ask-msg .followup { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.ask-msg .body__evidence {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.ask-msg .body__evidence h5 { margin: 0 0 4px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-2); font-weight: 600; }
+.ask-msg .body__evidence ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.ask-msg .body__evidence li { font-family: var(--font-mono); font-size: 11px; }
+.ask-msg .body__evidence li .src { color: var(--primary); font-weight: 500; }
+.ask-msg .body__caveat {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #92400E;
+  background: rgba(217, 119, 6, 0.10);
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  border-radius: 6px;
+  padding: 7px 9px;
+  display: flex; gap: 6px; align-items: flex-start;
+}
+[data-theme="dark"] .ask-msg .body__caveat { background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.28); color: #FCD34D; }
+.ask-msg .body__caveat svg { width: 12px; height: 12px; flex: 0 0 12px; margin-top: 1px; color: var(--warn); }
+
+/* Source badges shown next to bot answer titles. Subtle, no color flag. */
+.ask-source-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: var(--surface-3, var(--surface-2));
+  border: 1px solid var(--border);
+  vertical-align: middle;
+}
+.ask-source-badge--gemini {
+  color: var(--primary);
+  border-color: color-mix(in oklch, var(--primary) 40%, transparent);
+  background: color-mix(in oklch, var(--primary) 8%, transparent);
+}
+
+/* Skeleton placeholder shown while a Gemini call is in flight. */
+.ask-thinking .body { opacity: 0.85; }
+.ask-skeleton { display: flex; flex-direction: column; gap: 6px; }
+.ask-skeleton span {
+  display: block;
+  height: 9px;
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+    var(--surface-3, rgba(0,0,0,0.05)) 0%,
+    var(--border) 50%,
+    var(--surface-3, rgba(0,0,0,0.05)) 100%);
+  background-size: 200% 100%;
+  animation: askSkeletonShimmer 1.4s linear infinite;
+}
+.ask-skeleton span:nth-child(1) { width: 92%; }
+.ask-skeleton span:nth-child(2) { width: 78%; }
+.ask-skeleton span:nth-child(3) { width: 64%; }
+@keyframes askSkeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ask-skeleton span { animation: none; }
+}
+
+.ask-typing { display: inline-flex; gap: 3px; align-items: center; }
+.ask-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--muted-2); animation: typing 1.2s var(--ease) infinite; }
+.ask-typing i:nth-child(2) { animation-delay: 0.15s; }
+.ask-typing i:nth-child(3) { animation-delay: 0.30s; }
+@keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-3px); opacity: 1; } }
+
+.ask-input {
+  border-top: 1px solid var(--border);
+  padding: 14px 18px;
+  background: var(--surface);
+}
+.ask-input__chips {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.ask-input__form {
+  display: flex; gap: 10px; align-items: stretch;
+}
+.ask-input__form textarea {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  padding: 12px 14px;
+  font-size: 13px;
+  resize: none;
+  height: 44px;
+  line-height: 1.45;
+  transition: border-color .14s var(--ease), background-color .14s var(--ease);
+}
+.ask-input__form textarea:focus { outline: none; border-color: var(--primary); background: var(--surface); }
+.ask-input__form button[type="submit"] {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: var(--r-2);
+  font-size: 13px;
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+.ask-input__form button[type="submit"] svg { width: 14px; height: 14px; }
+
+.ask-side { display: flex; flex-direction: column; gap: 18px; }
+.ask-suggestion-list { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.ask-suggestion {
+  text-align: left;
+  padding: 5px 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-1);
+  font-size: 11px; line-height: 1.35; color: var(--fg);
+  display: inline-flex; gap: 6px; align-items: center;
+  transition: border-color .14s var(--ease), background .14s var(--ease);
+}
+.ask-suggestion:hover { background: var(--primary-50); border-color: var(--primary-100); }
+.ask-suggestion .num {
+  font-family: var(--font-mono); font-size: 9.5px; color: var(--primary); font-weight: 600;
+  flex: 0 0 auto;
+}
+
+.ask-policy { padding: 14px 18px; }
+.ask-policy h4 { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--fg-strong); }
+.policy-row { display: flex; gap: 10px; padding: 6px 0; align-items: flex-start; font-size: 11.5px; color: var(--muted); border-bottom: 1px dashed var(--border); }
+.policy-row:last-child { border-bottom: 0; }
+.policy-row .ic { width: 14px; height: 14px; flex: 0 0 14px; }
+.policy-row.ok .ic { color: var(--ok); }
+.policy-row.no .ic { color: var(--danger); }
+.policy-row .lbl { color: var(--fg); font-weight: 500; }
+.policy-row .lbl small { font-weight: 400; color: var(--muted); display: block; }
+
+
+/* ============== Methodology ==============
+   Static documentation page: data sources, table schemas, definitions,
+   and the "What this is / isn't" framing. Two-column layout with a
+   sticky table of contents on the left. */
+.methodology-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.methodology-toc {
+  position: sticky; top: calc(var(--topbar-h) + 16px);
+  align-self: start;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12.5px;
+  /* match the first card's top padding so the first nav link sits at the same y as the first card heading */
+  padding-top: 22px;
+}
+.methodology-toc a {
+  padding: 6px 10px; border-radius: 6px; color: var(--muted); transition: background .14s var(--ease), color .14s var(--ease);
+}
+.methodology-toc a:hover { background: var(--surface-2); color: var(--fg); }
+.methodology-toc a.active { background: var(--primary-50); color: var(--primary); font-weight: 600; }
+
+.methodology-content { display: flex; flex-direction: column; gap: 18px; }
+.method-section { padding: 22px 26px; }
+.method-section h2 {
+  margin: 0 0 8px;
+  font-size: 18px; font-weight: 700; color: var(--fg-strong);
+  letter-spacing: -0.012em;
+}
+.method-section .lede { font-size: 13.5px; color: var(--muted); margin: 0 0 16px; }
+.method-section h3 { margin: 18px 0 6px; font-size: 13px; font-weight: 600; color: var(--fg-strong); text-transform: none; letter-spacing: 0; }
+.method-section p { font-size: 13px; line-height: 1.6; color: var(--fg); margin: 0 0 10px; }
+.method-section ul { margin: 0 0 12px; padding-left: 18px; font-size: 13px; line-height: 1.6; color: var(--fg); }
+.method-section ul li { margin-bottom: 4px; }
+.method-section .source-table {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  font-size: 12px;
+}
+.source-table .hd, .source-table .row {
+  display: grid;
+  grid-template-columns: 200px 100px 1fr 90px;
+  gap: 0;
+}
+.source-table .hd {
+  background: var(--surface-2);
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; color: var(--muted-2);
+}
+.source-table .hd > div, .source-table .row > div {
+  padding: 8px 12px;
+  border-right: 1px solid var(--border);
+}
+.source-table .hd > div:last-child, .source-table .row > div:last-child { border-right: 0; }
+.source-table .row { border-top: 1px solid var(--border); font-family: var(--font-mono); font-size: 11.5px; color: var(--fg); }
+.source-table .row .src { color: var(--primary); font-weight: 500; }
+.source-table .row .pill { font-family: var(--font-body); font-size: 10.5px; padding: 2px 6px; border-radius: var(--r-1); background: var(--surface-2); border: 1px solid var(--border); display: inline-block; }
+.source-table .row .pill.ok { color: var(--ok); border-color: rgba(22, 163, 74, 0.28); background: rgba(22, 163, 74, 0.08); }
+[data-theme="dark"] .source-table .row .pill.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.28); color: #4ADE80; }
+
+.compliance-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 10px;
+}
+.compliance-col {
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  background: var(--surface-2);
+  padding: 14px 16px;
+}
+.compliance-col h4 {
+  margin: 0 0 10px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted-2); font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+.compliance-col h4 .ic { width: 13px; height: 13px; }
+.compliance-col.allow h4 .ic { color: var(--ok); }
+.compliance-col.deny  h4 .ic { color: var(--danger); }
+.compliance-col ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.compliance-col li { font-size: 12.5px; color: var(--fg); display: flex; gap: 8px; align-items: baseline; }
+.compliance-col li::before {
+  content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--muted-2); margin-top: 7px; flex: 0 0 4px;
+}
+.compliance-col.allow li::before { background: var(--ok); }
+.compliance-col.deny  li::before { background: var(--danger); }
+
+
+/* Methodology — Loaded snapshot tiles inside Evidence Used card */
+.evidence-snapshot { margin: 0 0 18px; }
+.evidence-snapshot .snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 900px) {
+  .evidence-snapshot .snapshot-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .evidence-snapshot .snapshot-grid { grid-template-columns: 1fr; }
+}
+.evidence-snapshot .snapshot-tile {
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.evidence-snapshot .snapshot-num {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  letter-spacing: -0.01em;
+}
+.evidence-snapshot .snapshot-lbl {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.evidence-snapshot .snapshot-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--muted-2);
+  font-weight: 400;
+}
+.evidence-snapshot .snapshot-note {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.evidence-snapshot .snapshot-note code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  color: var(--fg);
+}
+
+/* =========================================================
+   Methodology trust-center callouts (added: trust-center pass)
+   ========================================================= */
+.method-callout {
+  border-left: 3px solid var(--primary);
+  background: var(--surface-2);
+  padding: 14px 16px;
+  margin: 14px 0;
+  border-radius: var(--r-1, 6px);
+}
+.method-callout h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  font-weight: 600;
+}
+.method-callout p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fg);
+}
+.method-callout p:last-child { margin-bottom: 0; }
+.method-callout--rationale { border-left-color: var(--paralympic); }
+
+.method-vs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0;
+}
+@media (max-width: 720px) {
+  .method-vs-grid { grid-template-columns: 1fr; }
+}
+.method-vs-grid .method-callout { margin: 0; }
+
+.method-subhead {
+  margin: 22px 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--fg-strong);
+}
+
+.method-section .method-coverage-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 4px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  font-size: 13px;
+}
+.method-coverage-table thead th {
+  text-align: left;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.method-coverage-table tbody td {
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--fg);
+  vertical-align: top;
+}
+.method-coverage-table tbody tr:first-child td { border-top: 0; }
+.method-coverage-table td.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-strong);
+  white-space: nowrap;
+  width: 1%;
+}
+.method-coverage-sub {
+  color: var(--muted-2);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  margin-left: 6px;
+}
+.method-section .method-coverage-note {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin: 6px 0 0;
+}
+
+.method-counts-dl {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  gap: 8px 18px;
+  margin: 4px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.method-counts-dl dt {
+  color: var(--fg-strong);
+  font-weight: 600;
+}
+.method-counts-dl dd {
+  margin: 0;
+  color: var(--fg);
+}
+@media (max-width: 720px) {
+  .method-counts-dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .method-counts-dl dd { margin: 0 0 8px; }
+}
+
+/* === PARITY A+ === */
+.parity-equal-frame {
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.parity-equal-frame__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+  margin: 0 0 10px;
+}
+.parity-equal-frame__head h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--fg-strong);
+}
+.parity-equal-frame__caption {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-2);
+}
+.parity-equal-frame__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 720px) {
+  .parity-equal-frame__grid { grid-template-columns: 1fr; }
+}
+.parity-frame-card {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.parity-frame-card--oly  { border-left: 3px solid var(--olympic); }
+.parity-frame-card--para { border-left: 3px solid var(--paralympic); }
+.parity-frame-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin: 0 0 8px;
+}
+.parity-frame-card__rows {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.parity-frame-card__rows > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.parity-frame-card__rows dt {
+  font-size: 11px;
+  color: var(--muted-2);
+  font-weight: 500;
+}
+.parity-frame-card__rows dd {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fg-strong);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.parity-equal-frame__note {
+  margin: 12px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted-2);
+  font-style: italic;
+}
+
+.parity-overlap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 16px;
+}
+@media (max-width: 720px) {
+  .parity-overlap { grid-template-columns: 1fr; }
+}
+.parity-overlap__cell {
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.parity-overlap__num {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--fg-strong);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.parity-overlap__lbl {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted-2);
+}
+
+.parity-hubs-card .card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 14px 18px;
+}
+.parity-hubs-caption {
+  font-size: 12px;
+  color: var(--muted-2);
+  font-weight: 500;
+}
+.parity-hubs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+}
+/* Hub row: label | stacked oly/para bar | oly · para · total (all inline). Wider
+   value column so the three numbers sit side-by-side without crowding the edges. */
+.parity-hubs-list .bar-row {
+  grid-template-columns: 170px 1fr 120px;
+  gap: 14px;
+  min-height: 26px;
+  align-items: center;
+}
+.parity-hubs-list .bar-row.is-clickable {
+  /* Override the negative-margin trick from components.css so rows stay inside the card padding */
+  margin: 0;
+  padding: 4px 6px;
+}
+.parity-hubs-list .bar.bar--stacked {
+  height: 10px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--surface-2);
+}
+.parity-hubs-list .bar.bar--stacked > .seg {
+  position: absolute;
+  top: 0; bottom: 0;
+  border-radius: 0;
+  transition: width .9s var(--ease), left .9s var(--ease);
+}
+.parity-hubs-list .bar.bar--stacked > .seg--oly {
+  left: 0;
+  background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.parity-hubs-list .bar.bar--stacked > .seg--para {
+  background: linear-gradient(90deg, var(--paralympic), var(--paralympic-glow));
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.parity-hubs-list .v.v--split {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.parity-hubs-list .v-oly,
+.parity-hubs-list .v-para {
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.parity-hubs-list .v-sep {
+  font-size: 10.5px;
+  color: var(--muted-2);
+}
+.parity-hubs-list .v-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  margin-left: 2px;
+}
+.parity-hubs-list .v-oly  { color: var(--primary); }
+.parity-hubs-list .v-para { color: var(--paralympic); }
+
+/* === ASK A+ === */
+.ask-suggestion-list .ask-cat-group {
+  margin-bottom: 10px;
+}
+.ask-suggestion-list .ask-cat-group:last-child { margin-bottom: 0; }
+.ask-suggestion-list .ask-cat-head {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin: 0 0 4px;
+}
+.ask-suggestion-list .ask-cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ask-msg.ask-decline .body,
+.ask-msg.ask-muted .body {
+  border-left: 3px solid var(--border);
+  padding-left: 10px;
+}
+.ask-msg.ask-decline .body { border-left-color: var(--primary); }
+.ask-msg.ask-decline .followup {
+  margin-top: 8px;
+}
+
+
+/* === COMPARE A+ === */
+.cmp-aplus {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.cmp-aplus--post {
+  margin-top: 14px;
+  margin-bottom: 0;
+  gap: 16px;
+}
+.cmp-aplus__h {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  margin-bottom: 8px;
+}
+.cmp-aplus__glance {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.cmp-aplus__glance-list,
+.cmp-insight-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cmp-aplus__glance-list li,
+.cmp-insight-list li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+.cmp-aplus__glance-list li::before,
+.cmp-insight-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+.cmp-aplus__contrast {
+  border-left: 3px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.cmp-aplus__contrast-label {
+  font-weight: 600;
+  color: var(--fg);
+  margin-right: 4px;
+}
+.cmp-twocol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 720px) {
+  .cmp-twocol { grid-template-columns: 1fr; }
+}
+.cmp-twocol__col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.cmp-twocol__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cmp-twocol__list li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+.cmp-twocol__list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary);
+  font-weight: 700;
+}
+.cmp-twocol__list li.cmp-empty,
+.cmp-empty {
+  color: var(--muted-2);
+  font-style: italic;
+}
+.cmp-twocol__list li.cmp-empty::before { content: ""; }
+
+
+/* === ATLAS A+ === */
+/* Hometown concentration note — sits below the Top 10 Hometown Hubs list and
+   reads as a side note rather than another row in the list. The chip is a
+   sibling of `.hub-list`, so we mirror `.hub-list`'s 18px horizontal padding
+   via margin so the chip aligns with the hub rows above (same width as a
+   single row like “Denver”) instead of stretching to the column edges. */
+.atlas-conc-chip {
+  display: block;
+  margin: 14px 18px 0;
+  padding: 12px 14px;
+  border-radius: var(--r-2);
+  background: var(--primary-50, color-mix(in srgb, var(--primary) 6%, var(--surface)));
+  color: var(--fg);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: .01em;
+  border: 1px solid var(--primary-100, var(--border));
+}
+.atlas-conc-chip[hidden] { display: none; }
+
+/* ---------- Atlas: Guided Exploration Lenses ---------- */
+.atlas-lens {
+  margin: 6px 0 12px;
+}
+.atlas-lens__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.atlas-lens__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--fg);
+}
+.atlas-lens__sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.atlas-lens__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.atlas-lens__chip {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease), transform .12s var(--ease);
+}
+.atlas-lens__chip:hover {
+  background: var(--primary-50);
+  color: var(--primary);
+  border-color: var(--primary-100);
+  transform: translateY(-1px);
+}
+.atlas-lens__chip[aria-pressed="true"],
+.atlas-lens__chip.is-active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.atlas-lens__chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Atlas: Current View summary card ----------
+   Lives at the top of the LEFT column inside .atlas-grid, directly
+   above the map card. Bottom margin is dropped because .atlas-left
+   already governs gap via flex `gap: var(--content-gap)`. */
+.atlas-current {
+  margin: 0;
+  padding: 12px 16px 14px;
+}
+.atlas-current__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.atlas-current__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: var(--fg);
+}
+.atlas-current__filters {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+  flex: 1 1 auto;
+}
+.atlas-current__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+.atlas-current__cell {
+  min-width: 0;
+}
+.atlas-current__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted-2);
+  margin-bottom: 4px;
+}
+.atlas-current__value {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  color: var(--fg-strong);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+  word-break: break-word;
+}
+@media (max-width: 700px) {
+  .atlas-current__grid { grid-template-columns: 1fr; }
+}
+
+.atlas-similar .card__body { padding: 14px 18px 16px; }
+.atlas-similar__caption {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.atlas-similar__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.atlas-similar__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11.5px;
+  color: var(--muted);
+  transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease);
+}
+.atlas-similar__chip:hover {
+  background: var(--primary-50);
+  color: var(--primary);
+  border-color: var(--primary-100);
+}
+.atlas-similar__name { font-weight: 600; color: var(--fg-strong); }
+.atlas-similar__chip:hover .atlas-similar__name { color: var(--primary); }
+.atlas-similar__dot { color: var(--muted-2); }
+.atlas-similar__why {
+  font-size: 11px;
+  color: var(--muted-2);
+}
+.atlas-similar__empty {
+  font-size: 12.5px;
+  color: var(--muted-2);
+  padding: 4px 0;
+}
+/* Empty-state placeholder shown when no state is selected — mirrors
+   the climate card's empty-state pattern so the card is never silently
+   hidden and always tells the user what to do to populate it. */
+.atlas-similar__placeholder {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 6px 2px 4px;
+}
+.atlas-similar__placeholder svg {
+  width: 28px; height: 28px;
+  color: var(--primary);
+  opacity: 0.7;
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+.atlas-similar__placeholder-title {
+  font-size: 13px;
+  color: var(--fg-strong);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.atlas-similar__placeholder-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* === MOBILE A+ === */
+
+/* ---------- Focus-visible for Phase A+ interactive surfaces ---------- */
+.atlas-similar__chip:focus-visible,
+.parity-frame-card:focus-visible,
+.parity-overlap__cell:focus-visible,
+.ask-input__chips button:focus-visible,
+.ask-suggestion:focus-visible,
+.ask-cat-chips button:focus-visible,
+.ask-cat-chips .ask-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+/* Slightly stronger contrast for muted captions added in Phase A+
+   (was --muted-2 #8893A8 on white → upgraded to --muted #56627A which is WCAG AA on white). */
+.atlas-similar__caption,
+.atlas-similar__why {
+  color: var(--muted);
+}
+
+/* ---------- Tablet (<= 768px) ---------- */
+@media (max-width: 768px) {
+  /* Parity KPI strips stack */
+  .parity-equal-frame__grid { grid-template-columns: 1fr; }
+  .parity-overlap { grid-template-columns: 1fr; }
+
+  /* Compare A+ 2-col grids stack */
+  .cmp-twocol,
+  #cmpSimDiff { grid-template-columns: 1fr; }
+
+  /* Atlas similar chips wrap cleanly */
+  .atlas-similar__list { gap: 6px; }
+  .atlas-similar__chip { font-size: 12.5px; padding: 6px 10px; }
+
+  /* Methodology callouts stack below 768 (and again at 700 below) */
+  .method-vs-grid { display: block; }
+  .method-vs-grid > * + * { margin-top: 12px; }
+
+  /* Ask quick-chips wrap with category headers stacked */
+  .ask-input__chips { flex-wrap: wrap; gap: 6px; }
+  .ask-suggestion-list .ask-cat-chips { flex-wrap: wrap; }
+
+  /* Min readable font-size everywhere on small screens */
+  body, .meta, .filter-group__label, .filter-select,
+  .atlas-similar__chip,
+  .atlas-similar__why,
+  .atlas-similar__caption,
+  .cmp-twocol__list li, .cmp-insight-list li, .cmp-aplus__contrast,
+  .ask-suggestion { font-size: max(14px, 1em); }
+
+  /* Filterbars wrap to multiple rows on tablets */
+  .filterbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: var(--filter-h, 56px);
+    padding-top: 8px;
+    padding-bottom: 8px;
+    overflow-x: visible;
+    row-gap: 8px;
+  }
+}
+
+/* ---------- Below 700px: explicit method-vs-grid stack (covers 700–768 too) ---------- */
+@media (max-width: 700px) {
+  .method-vs-grid { display: block; }
+  .method-vs-grid > * + * { margin-top: 12px; }
+}
+
+/* ---------- Below 600px: filterbars wrap (no horizontal scroll) ---------- */
+@media (max-width: 600px) {
+  #filterbar,
+  #filterbarSport,
+  #filterbarParity,
+  #filterbarCompare,
+  .filterbar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    height: auto;
+    row-gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .filter-group { flex: 1 1 auto; min-width: 0; }
+}
+
+/* ---------- Phone (<= 480px) ---------- */
+@media (max-width: 480px) {
+  .parity-equal-frame__grid,
+  .parity-overlap,
+  .cmp-twocol,
+  #cmpSimDiff { grid-template-columns: 1fr; }
+
+  .atlas-similar__list,
+  .ask-input__chips,
+  .ask-cat-chips { flex-wrap: wrap; gap: 6px; }
+
+  .parity-equal-frame,
+  .parity-overlap { padding: 12px; }
+
+  .ask-suggestion-list .ask-cat-group { margin-bottom: 10px; }
+  .ask-suggestion-list .ask-cat-head { font-size: 12px; }
+}
+
+/* ============== Parity Lens — Paralympic Sport Footprint ============== */
+.parity-para-footprint-card .card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 14px 18px;
+}
+.parity-para-footprint__caption {
+  font-size: 12px;
+  color: var(--muted-2);
+  font-weight: 500;
+}
+.parity-para-footprint__list {
+  display: flex;
+  flex-direction: column;
+  padding: 0 18px 8px;
+}
+.parity-para-footprint__head,
+.parity-para-footprint__row {
+  display: grid;
+  grid-template-columns: 1fr 90px 90px 90px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 4px;
+}
+.parity-para-footprint__head {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.parity-para-footprint__row + .parity-para-footprint__row {
+  border-top: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+}
+.parity-para-footprint__row .pf-col--sport {
+  font-size: 13px;
+  color: var(--fg);
+  font-weight: 500;
+}
+.parity-para-footprint__row .pf-col--num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  color: var(--paralympic-600, var(--paralympic));
+  text-align: right;
+  font-weight: 600;
+}
+.parity-para-footprint__head .pf-col--num { text-align: right; }
+.parity-para-footprint__foot {
+  padding: 6px 18px 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+.parity-para-footprint__toggle {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease);
+}
+.parity-para-footprint__toggle:hover {
+  background: var(--surface-2);
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+.parity-para-footprint__toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .parity-para-footprint__head,
+  .parity-para-footprint__row {
+    grid-template-columns: 1fr 60px 60px 60px;
+    gap: 8px;
+  }
+}
+
+/* ---------- Empty-state suggestion chips (Sport Explorer, Compare Regions) --- */
+
+.sport-empty-suggestions,
+.cmp-empty-suggestions,
+.ask-empty-suggestions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sport-empty-suggestions__label,
+.cmp-empty-suggestions__label,
+.ask-empty-suggestions__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.sport-empty-suggestions__row,
+.cmp-empty-suggestions__row,
+.ask-empty-suggestions__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sport-empty-suggestions__chip,
+.cmp-empty-suggestions__chip,
+.ask-empty-suggestions__chip {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease), transform .12s var(--ease);
+}
+.sport-empty-suggestions__chip:hover,
+.cmp-empty-suggestions__chip:hover,
+.ask-empty-suggestions__chip:hover {
+  background: var(--primary-50);
+  color: var(--primary);
+  border-color: var(--primary-100);
+  transform: translateY(-1px);
+}
+.sport-empty-suggestions__chip:focus-visible,
+.cmp-empty-suggestions__chip:focus-visible,
+.ask-empty-suggestions__chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Copy buttons on insight cards ----------------------------------- */
+
+.has-copy-btn {
+  position: relative;
+}
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted-2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1;
+  transition: background .14s var(--ease), color .14s var(--ease), border-color .14s var(--ease), width .18s var(--ease);
+  z-index: 2;
+}
+.copy-btn:hover {
+  background: var(--surface-2);
+  color: var(--fg);
+  border-color: var(--border);
+}
+.copy-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.copy-btn .copy-btn__icon {
+  display: block;
+  flex: 0 0 auto;
+}
+.copy-btn__feedback {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: max-width .18s var(--ease), opacity .14s var(--ease);
+}
+.copy-btn.is-copied {
+  width: auto;
+  color: var(--primary);
+  border-color: var(--primary-100);
+  background: var(--primary-50);
+}
+.copy-btn.is-copied .copy-btn__feedback {
+  max-width: 60px;
+  opacity: 1;
+}
+
+/* Nudge insight-card padding so the copy button doesn't overlap the title row. */
+.gemini__body.has-copy-btn { padding-right: 44px; }
+.ask-msg.bot .body.has-copy-btn { padding-right: 44px; }
+

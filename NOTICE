@@ -1,0 +1,29 @@
+Team USA Atlas
+Copyright 2026 Kim Fung
+
+This product is licensed under the Apache License, Version 2.0.
+
+------------------------------------------------------------------------
+Third-party assets bundled with this project
+------------------------------------------------------------------------
+
+1. Google Gemini logo  (assets/img/google-gemini.svg)
+   Source : https://dashboardicons.com/icons/google-gemini
+   Project: homarr-labs/dashboard-icons (https://github.com/homarr-labs/dashboard-icons)
+   License: MIT (https://opensource.org/licenses/MIT)
+   The Google Gemini name and logo are trademarks of Google LLC and are
+   used here for descriptive purposes only.
+
+2. User and navigation icons (inline SVG strokes in app.html, ask.js, etc.)
+   Style  : Lucide / Feather Icons-style stroke icons (1.8px, currentColor)
+   Project: https://lucide.dev / https://feathericons.com
+   License: ISC (Lucide) / MIT (Feather) — both Apache-2.0 compatible.
+
+3. United States atlas TopoJSON (data/us-atlas-states-10m.json)
+   Project: https://github.com/topojson/us-atlas
+   License: Public Domain / ISC.
+
+4. Athlete-participation and roster data (data/*.json)
+   Source: Team USA public roster, processed locally for this project.
+   Used solely for descriptive geographic analysis. No athlete-level
+   personal data is published; only aggregate hometown patterns.

@@ -1,0 +1,34 @@
+# gcloud upload exclusions for `gcloud run deploy --source .`
+# Mirrors .gitignore plus a few things we never want in a Cloud Run image.
+
+.gcloudignore
+.git
+.gitignore
+.gitattributes
+
+# Secrets — these MUST stay local. Set GEMINI_API_KEY on Cloud Run instead.
+.env
+.env.*
+
+# Editor / OS junk
+.DS_Store
+.vscode/
+.idea/
+
+# Local-only artifacts
+*.log
+npm-debug.log*
+node_modules/
+.npm/
+
+# Docs that don't need to ship inside the image
+.docs/
+
+# Python ETL — already executed, output JSON ships under /data/
+scripts/
+__pycache__/
+*.pyc
+.venv/
+
+# Session/agent scratch
+.copilot/

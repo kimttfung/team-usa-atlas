@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head><script data-od-sandbox-shim>(function(){
+  function makeStore(){
+    var data = {};
+    var api = {
+      getItem: function(k){ return Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null; },
+      setItem: function(k, v){ data[k] = String(v); },
+      removeItem: function(k){ delete data[k]; },
+      clear: function(){ data = {}; },
+      key: function(i){ return Object.keys(data)[i] || null; }
+    };
+    Object.defineProperty(api, 'length', { get: function(){ return Object.keys(data).length; } });
+    return api;
+  }
+  function tryShim(name){
+    var works = false;
+    try { works = !!window[name] && typeof window[name].getItem === 'function'; void window[name].length; }
+    catch (_) { works = false; }
+    if (works) return;
+    try { Object.defineProperty(window, name, { configurable: true, value: makeStore() }); }
+    catch (_) { try { window[name] = makeStore(); } catch (__) {} }
+  }
+  tryShim('localStorage');
+  tryShim('sessionStorage');
+})();</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Team USA Atlas — Hometown Pattern Engine</title>
+<meta name="description" content="An exploratory analyst dashboard surfacing aggregate hometown participation patterns of U.S. Olympic and Paralympic athletes. Pattern, not prediction." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+
+
+<link rel="stylesheet" href="/assets/css/tokens.css" />
+<link rel="stylesheet" href="/assets/css/base.css" />
+<link rel="stylesheet" href="/assets/css/layout.css" />
+<link rel="stylesheet" href="/assets/css/components.css" />
+<link rel="stylesheet" href="/assets/css/map.css" />
+<link rel="stylesheet" href="/assets/css/views.css" />
+
+<style id="appLoaderStyle">
+  #appLoader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+               background: #F2F5FA; color: #1F2937; font-family: 'Inter', system-ui, sans-serif;
+               z-index: 9999; transition: opacity .25s ease; }
+  #appLoader[data-state="ready"] { opacity: 0; pointer-events: none; visibility: hidden; }
+  #appLoader[data-state="error"] { background: #FEF2F2; color: #7F1D1D; padding: 24px; }
+  .app-loader__inner { max-width: 540px; text-align: center; }
+  .app-loader__inner h2 { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+  .app-loader__inner p  { margin: 4px 0; font-size: 14px; line-height: 1.5; }
+  .app-loader__hint     { color: #6B7280; }
+  .app-loader__hint code { background: rgba(0,0,0,.06); padding: 1px 6px; border-radius: 4px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; }
+  .app-loader__spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #C7D2FE; border-top-color: #4F46E5;
+                         border-radius: 50%; animation: appLoaderSpin .8s linear infinite; vertical-align: -2px; margin-right: 8px; }
+  @keyframes appLoaderSpin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<div id="appLoader" data-state="loading" role="status" aria-live="polite">
+  <div class="app-loader__inner">
+    <span class="app-loader__spinner" aria-hidden="true"></span>
+    <span>Loading Team USA Atlas…</span>
+  </div>
+</div>
+<div class="app" data-view="atlas">
+
+  <!-- ============== SIDEBAR ============== -->
+  <aside class="sidebar" aria-label="Primary navigation">
+    <div class="sidebar__brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg>
+      </div>
+      <div class="brand-text">
+        <strong>Team USA Atlas</strong>
+        <span>a hometown pattern engine</span>
+      </div>
+    </div>
+
+    <div class="sidebar__section-label">Explore</div>
+    <nav class="sidebar__nav" id="navMain" aria-label="Primary">
+      <button class="nav-item" data-view="atlas" aria-current="page">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3-6-3Z"/><path d="M9 4v13M15 7v13"/></svg>
+        <span class="lbl">Atlas Overview</span>
+        <kbd>1</kbd>
+      </button>
+      <button class="nav-item" data-view="sport">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12c4-3 14-3 18 0"/><path d="M12 3c-3 4-3 14 0 18"/></svg>
+        <span class="lbl">Sport Explorer</span>
+        <kbd>2</kbd>
+      </button>
+      <button class="nav-item" data-view="parity">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4"/></svg>
+        <span class="lbl">Parity Lens</span>
+        <kbd>3</kbd>
+      </button>
+      <button class="nav-item" data-view="compare">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v18M16 3v18"/><path d="M3 8h5M16 8h5M3 16h5M16 16h5"/></svg>
+        <span class="lbl">Compare Regions</span>
+        <kbd>4</kbd>
+      </button>
+      <button class="nav-item" data-view="ask">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 4V6a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M9 10h6M9 14h4"/></svg>
+        <span class="lbl">Ask the Analyst</span>
+        <kbd>5</kbd>
+      </button>
+      <button class="nav-item" data-view="methodology">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4Z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span class="lbl">Methodology</span>
+        <kbd>6</kbd>
+      </button>
+    </nav>
+
+    <div class="sidebar__footer">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="lbl" id="themeLbl">Light mode</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============== TOPBAR ============== -->
+  <header class="topbar">
+    <div class="topbar__title">
+      <strong id="topTitle">Atlas</strong>
+    </div>
+    <div class="topbar__actions">
+      <span class="responsibility-badge" title="Analyst insights · descriptive, not causal">
+        <span class="gem" aria-hidden="true"><i></i></span>
+        <span class="lbl">Powered by <b>Google Cloud</b></span>
+      </span>
+      <form class="topbar__ask" id="topbarAskForm" autocomplete="off" role="search">
+        <svg class="search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="topbarAskInput" type="text" placeholder="Ask the analyst — try “Top hubs in CA”" aria-label="Ask the analyst" />
+        <button class="send" type="submit" aria-label="Send to analyst">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="m13 5 7 7-7 7"/></svg>
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <!-- ============== FILTER BAR ============== -->
+  <div class="filterbar" id="filterbar">
+    <div class="filter-group">
+      <span class="filter-group__label">Metric</span>
+      <select class="filter-select" data-filter="metric" aria-label="Atlas map metric">
+        <option value="total" selected>Total Athletes</option>
+        <option value="share">Share of National</option>
+        <option value="diversity">Sport Diversity</option>
+        <option value="parity">Paralympic Share</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Program</span>
+      <select class="filter-select" data-filter="program" aria-label="Atlas program filter (Olympic / Paralympic / Both)">
+        <!-- options injected at boot from PROGRAMS derived from athlete_participation -->
+        <option value="both" selected>Both</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Season</span>
+      <select class="filter-select" data-filter="season" aria-label="Atlas season filter (Summer / Winter / All)">
+        <!-- options injected at boot from SEASONS derived from athlete_participation -->
+        <option value="all" selected>All Seasons</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Sport</span>
+      <select class="filter-select" data-filter="sport" aria-label="Atlas sport filter">
+        <!-- options injected at boot from athlete_sports + state_sport_summary -->
+        <option value="any" selected>Any Sport</option>
+      </select>
+    </div>
+    <div class="filterbar__spacer"></div>
+    <button type="button" class="filter-reset" id="filterReset" title="Reset all Atlas filters to defaults" aria-label="Reset filters">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <path d="M3 4v5h5"/>
+      </svg>
+      <span>Reset</span>
+    </button>
+  </div>
+
+  <!-- ============== SPORT EXPLORER FILTER BAR ============== -->
+  <div class="filterbar" id="filterbarSport">
+    <div class="filter-group">
+      <span class="filter-group__label">Sport</span>
+      <select class="filter-select" id="sportPicker" aria-label="Sport Explorer sport"></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Program</span>
+      <select class="filter-select" id="sportProgram" aria-label="Sport Explorer program (Olympic / Paralympic / Both)">
+        <!-- options injected at boot from PROGRAMS derived from athlete_participation -->
+        <option value="any" selected>Both</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Season</span>
+      <select class="filter-select" id="sportSeason" aria-label="Sport Explorer season (Summer / Winter / All)">
+        <!-- options injected at boot from SEASONS derived from athlete_participation -->
+        <option value="any" selected>All Seasons</option>
+      </select>
+    </div>
+    <div class="filterbar__spacer"></div>
+    <button type="button" class="filter-reset" id="sportFilterReset" title="Reset Sport Explorer filters to defaults" aria-label="Reset filters">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <path d="M3 4v5h5"/>
+      </svg>
+      <span>Reset</span>
+    </button>
+  </div>
+
+  <!-- ============== PARITY LENS FILTER BAR ============== -->
+  <div class="filterbar" id="filterbarParity">
+    <div class="filter-group">
+      <span class="filter-group__label">View</span>
+      <select class="filter-select" id="parityView" aria-label="Parity Lens choropleth view">
+        <option value="paralympic" selected>Paralympic Count</option>
+        <option value="parity">Paralympic Share</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">Season</span>
+      <select class="filter-select" id="paritySeason" aria-label="Parity Lens season (Summer / Winter / All)">
+        <option value="all" selected>All Seasons</option>
+        <option value="summer">Summer</option>
+        <option value="winter">Winter</option>
+      </select>
+    </div>
+    <div class="filter-group" title="Hide states with fewer than this many total athletes from the “Highest Paralympic Share” list, so a state with a tiny sample doesn't appear to lead.">
+      <span class="filter-group__label">Min Athletes per State</span>
+      <select class="filter-select" id="parityMin" aria-label="Minimum total athletes per state for the Highest Paralympic Share list">
+        <option value="0">0</option>
+        <option value="10">10</option>
+        <option value="30" selected>30</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+    <div class="filterbar__spacer"></div>
+    <button type="button" class="filter-reset" id="parityReset" title="Reset Parity Lens filters to defaults" aria-label="Reset filters">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <path d="M3 4v5h5"/>
+      </svg>
+      <span>Reset</span>
+    </button>
+  </div>
+
+  <!-- ============== COMPARE REGIONS FILTER BAR ============== -->
+  <div class="filterbar" id="filterbarCompare">
+    <div class="filter-group">
+      <span class="filter-group__label">State A</span>
+      <select class="filter-select" id="cmpSelectA" aria-label="Compare Regions: state A"></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group__label">State B</span>
+      <select class="filter-select" id="cmpSelectB" aria-label="Compare Regions: state B"></select>
+    </div>
+    <div class="filterbar__spacer"></div>
+    <button type="button" class="filter-reset" id="cmpReset" title="Clear selection" aria-label="Clear selection">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+        <path d="M3 4v5h5"/>
+      </svg>
+      <span>Reset</span>
+    </button>
+  </div>
+
+  <!-- ============== MAIN ============== -->
+  <main class="main" id="main">
+
+    <!-- ATLAS VIEW -->
+    <section class="view" data-view="atlas" data-active="true">
+      <div class="view-header">
+        <p class="view-intro">Map Team USA roster geography across all 50 states, DC, and the Virgin Islands. Switch lenses to see total athletes, Paralympic representation, the winter footprint, sport diversity, or Olympic and Paralympic balance.</p>
+      </div>
+
+      <div class="atlas-lens" id="atlasLens">
+        <div class="atlas-lens__head">
+          <h3 class="atlas-lens__title">Explore by Lens</h3>
+          <p class="atlas-lens__sub">Quick filter combinations for guided discovery.</p>
+        </div>
+        <div class="atlas-lens__row" id="atlasLensRow" role="group" aria-label="Atlas exploration lenses"></div>
+      </div>
+
+      <div class="atlas-grid">
+        <!-- LEFT column: Current View summary + map + sports/hubs sub-card + climate.
+             "Current View" lives at the top of the LEFT column (instead of
+             above the whole atlas-grid) so its width tracks the map below it
+             and the right-hand .state-panel cards can pull up to align with
+             the top of this card, eliminating wasted vertical space. -->
+        <div class="atlas-left">
+          <div class="card atlas-current" id="atlasCurrent">
+            <div class="atlas-current__head">
+              <h3 class="atlas-current__title">Current View</h3>
+              <div class="atlas-current__filters" id="atlasCurrentFilters">All filters at default</div>
+            </div>
+            <div class="atlas-current__grid">
+              <div class="atlas-current__cell">
+                <div class="atlas-current__label">Top state</div>
+                <div class="atlas-current__value tabular" id="atlasCurrentTopState">—</div>
+              </div>
+              <div class="atlas-current__cell">
+                <div class="atlas-current__label">Top hometown hub</div>
+                <div class="atlas-current__value tabular" id="atlasCurrentTopHub">—</div>
+              </div>
+              <div class="atlas-current__cell">
+                <div class="atlas-current__label">States represented</div>
+                <div class="atlas-current__value tabular" id="atlasCurrentStates">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card map-card">
+            <div class="map-toolbar">
+              <h3 id="mapTitle">Athletes per State</h3>
+              <div class="legend">
+                <span>fewer</span>
+                <div class="legend-ramp" id="legendRamp"></div>
+                <span>more</span>
+              </div>
+            </div>
+            <div class="map-stage" id="mapStage">
+              <!-- map svg injected by JS -->
+            </div>
+          </div>
+
+          <div class="card atlas-bars-card">
+            <div class="atlas-bars-row">
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4 id="sportListTitle">Top 10 Sports</h4>
+                  <span class="meta" id="sportListMeta"></span>
+                </div>
+                <div class="sport-list" id="sportList"></div>
+              </div>
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4 id="hubListTitle">Top 10 Hometown Hubs</h4>
+                  <span class="meta" id="hubListMeta"></span>
+                </div>
+                <div class="hub-list" id="hubList"></div>
+                <div class="atlas-conc-chip" id="hometownConcChip" hidden></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__head">
+              <h3>Climate Context</h3>
+            </div>
+            <div class="climate-block" id="climateBlock"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT column -->
+        <div class="state-panel">
+          <div class="card state-overview" id="stateOverview">
+            <div class="state-overview__head">
+              <div class="state-overview__identity">
+                <span class="eyebrow" id="stateEyebrow">Selected · CA</span>
+                <h2 id="stateName">California</h2>
+              </div>
+              <button class="state-overview__reset" id="resetStateBtn" type="button" title="Show aggregate totals across all 50 states + DC">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M3.6 9h16.8M3.6 15h16.8"/>
+                  <path d="M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18"/>
+                </svg>
+                <span>All States</span>
+              </button>
+            </div>
+
+            <div id="stateScopeBanner" class="state-scope-banner" style="display:none;font-size:11.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;padding:6px 0 10px;"></div>
+
+            <div class="state-stats">
+              <div class="stat stat--accent">
+                <div class="label">Total Athletes</div>
+                <div class="value tabular"><span class="counter">—</span></div>
+                <div class="delta">across the roster</div>
+              </div>
+              <div class="stat">
+                <div class="label">Share of National</div>
+                <div class="value tabular"><span class="counter">—</span></div>
+                <div class="delta">of all hometown athletes</div>
+              </div>
+              <div class="stat">
+                <div class="label">Sport Diversity</div>
+                <div class="value tabular"><span class="counter">—</span></div>
+                <div class="delta">distinct disciplines</div>
+              </div>
+              <div class="stat stat--paralympic">
+                <div class="label">Paralympic Share</div>
+                <div class="value tabular"><span class="counter">—</span></div>
+                <div class="delta">balance index <span class="mono">—</span></div>
+              </div>
+            </div>
+
+            <div class="split-bar" aria-label="Olympic vs Paralympic split">
+              <div class="split-bar__seg--oly"  id="splitOly"  style="width: 0%"></div>
+              <div class="split-bar__seg--para" id="splitPara" style="width: 0%"></div>
+            </div>
+            <div class="split-bar-legend">
+              <span><i class="oly"></i>Olympic <span class="mono tabular" id="legOly">0</span></span>
+              <span><i class="para"></i>Paralympic <span class="mono tabular" id="legPara">0</span></span>
+            </div>
+
+            <div class="split-bar split-bar--season" aria-label="Summer vs Winter split">
+              <div class="split-bar__seg--summer" id="splitSummer" style="width: 0%"></div>
+              <div class="split-bar__seg--winter" id="splitWinter" style="width: 0%"></div>
+            </div>
+            <div class="split-bar-legend">
+              <span><i class="summer"></i>Summer <span class="mono tabular" id="legSummer">0</span></span>
+              <span><i class="winter"></i>Winter <span class="mono tabular" id="legWinter">0</span></span>
+            </div>
+          </div>
+
+          <div class="gemini" id="geminiInsight">
+            <div class="gemini__head">
+              <span class="gemini__icon">
+                <img src="assets/img/google-gemini.svg" alt="" width="22" height="22" />
+              </span>
+              <span class="gemini__title">Regional Insight</span>
+            </div>
+            <div class="gemini__body" id="geminiBody" aria-live="polite"></div>
+            <div class="gemini__followup" id="geminiFollow"></div>
+          </div>
+
+          <div class="card atlas-similar" id="similarStatesCard" hidden>
+            <div class="card__head">
+              <h3>Similar State Profiles</h3>
+            </div>
+            <div class="card__body">
+              <p class="atlas-similar__caption">States with the closest profile across athlete count, sport diversity, winter share, Paralympic share, and parity balance. Computed from all-data profiles, so peers don't change with active filters.</p>
+              <div class="atlas-similar__list" id="similarStatesList" role="list" aria-label="States with similar profiles"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PARITY LENS VIEW -->
+    <section class="view" data-view="parity">
+      <p class="view-intro">Compare Olympic and Paralympic representation across states, hometown hubs, and sports. Adjust the minimum-athletes floor to focus on places with enough roster depth for the share to be meaningful.</p>
+
+      <!-- A. Equal-frame KPI strip -->
+      <div class="parity-equal-frame">
+        <div class="parity-equal-frame__head">
+          <h3>Where Each Side Shows Up</h3>
+          <p class="parity-equal-frame__caption">Side-by-side counts, no single ranking.</p>
+        </div>
+        <div class="parity-equal-frame__grid">
+          <div class="parity-frame-card parity-frame-card--oly" role="group" aria-label="Olympic representation">
+            <div class="parity-frame-card__title">Olympic Representation</div>
+            <dl class="parity-frame-card__rows">
+              <div><dt>States</dt><dd id="pfOlyStates">0</dd></div>
+              <div><dt>Hubs</dt><dd id="pfOlyHubs">0</dd></div>
+              <div><dt>Sports</dt><dd id="pfOlySports">0</dd></div>
+            </dl>
+          </div>
+          <div class="parity-frame-card parity-frame-card--para" role="group" aria-label="Paralympic representation">
+            <div class="parity-frame-card__title">Paralympic Representation</div>
+            <dl class="parity-frame-card__rows">
+              <div><dt>States</dt><dd id="pfParaStates">0</dd></div>
+              <div><dt>Hubs</dt><dd id="pfParaHubs">0</dd></div>
+              <div><dt>Sports</dt><dd id="pfParaSports">0</dd></div>
+            </dl>
+          </div>
+        </div>
+        <p class="parity-equal-frame__note">"States" counts distinct hometown jurisdictions in the data and includes Washington, D.C. and the U.S. Virgin Islands alongside the 50 states.</p>
+      </div>
+
+      <!-- B. Overlap KPI strip -->
+      <div class="parity-overlap" role="group" aria-label="Programs in overlap">
+        <div class="parity-overlap__cell">
+          <div class="parity-overlap__num" id="pkOverlapStates">0</div>
+          <div class="parity-overlap__lbl">states host both Olympic and Paralympic athletes</div>
+        </div>
+        <div class="parity-overlap__cell">
+          <div class="parity-overlap__num" id="pkOverlapHubs">0</div>
+          <div class="parity-overlap__lbl">hometown hubs host both programs</div>
+        </div>
+        <div class="parity-overlap__cell">
+          <div class="parity-overlap__num" id="pkOverlapSports">0</div>
+          <div class="parity-overlap__lbl">Paralympic sports represented in the data</div>
+        </div>
+      </div>
+
+      <div class="parity-grid">
+        <!-- LEFT: stacked column — map card on top, bars card underneath (mirrors Atlas pattern) -->
+        <div class="parity-left">
+          <div class="card map-card parity-card">
+            <div class="map-toolbar">
+              <h3>Paralympic Share by State</h3>
+              <div class="legend">
+                <span class="mono">smaller</span>
+                <div class="legend-ramp" id="legendRampParity"></div>
+                <span class="mono">larger</span>
+              </div>
+            </div>
+            <div class="map-stage" id="mapStageParity"></div>
+          </div>
+
+          <div class="card atlas-bars-card parity-bars-card">
+            <div class="atlas-bars-row">
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4>Top 10 States by Paralympic Athletes</h4>
+                </div>
+                <div class="bar-list" id="parityShareList"></div>
+              </div>
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4>Highest Paralympic Share <span id="parityBalanceMinNote" style="font-size:11px;color:var(--muted-2);font-weight:500;">(≥30 athletes)</span></h4>
+                </div>
+                <div class="bar-list" id="parityBalanceList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card parity-hubs-card">
+            <div class="card__head">
+              <h3 id="parityHubsHead">Top Hubs With Both Programs</h3>
+              <span class="parity-hubs-caption" id="parityHubsCaption">Top 10 hometown hubs that have both Olympic and Paralympic athletes, ranked by combined athlete count.</span>
+            </div>
+            <div class="parity-hubs-list bar-list" id="parityHubsList"></div>
+          </div>
+
+          <div class="card parity-para-footprint-card">
+            <div class="card__head">
+              <h3>Paralympic Sport Footprint</h3>
+              <span class="parity-para-footprint__caption">Each row shows the geographic spread of one Paralympic sport across the current roster.</span>
+            </div>
+            <div class="parity-para-footprint__list" id="parityParaFootprintList" role="list" aria-label="Paralympic sport footprint"></div>
+            <div class="parity-para-footprint__foot">
+              <button type="button" class="parity-para-footprint__toggle" id="parityParaFootprintToggle" aria-expanded="false">Show all</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Parity insight -->
+        <div class="gemini parity-gemini">
+          <div class="gemini__head">
+            <span class="gemini__icon">
+              <img src="assets/img/google-gemini.svg" alt="" width="22" height="22" />
+            </span>
+            <span class="gemini__title">Parity Insight</span>
+          </div>
+          <div class="gemini__body" id="parityInsightBody" aria-live="polite"></div>
+          <div class="gemini__followup" id="parityInsightFollow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPARE VIEW -->
+    <section class="view" data-view="compare">
+      <p class="view-intro">Pick two states to see a profile-aligned side by side: total counts, sport mix, hometown concentration, season profile, and climate context. Differences are descriptive only, not a ranking.</p>
+      <div class="compare-content">
+        <!-- LEFT: state identity strip + side-by-side profile -->
+        <div class="compare-left">
+          <div class="compare-pickers">
+            <div class="compare-picker left">
+              <div class="swatch" id="cmpSwatchA">CA</div>
+              <div class="compare-picker__body">
+                <div class="compare-picker__label">State A</div>
+                <div class="compare-picker__name" id="cmpNameA">California</div>
+              </div>
+              <div class="compare-picker__total">
+                <span id="cmpTotalA">0</span>
+                <small>athletes</small>
+              </div>
+            </div>
+            <div class="compare-picker right">
+              <div class="swatch" id="cmpSwatchB">CO</div>
+              <div class="compare-picker__body">
+                <div class="compare-picker__label">State B</div>
+                <div class="compare-picker__name" id="cmpNameB">Colorado</div>
+              </div>
+              <div class="compare-picker__total">
+                <span id="cmpTotalB">0</span>
+                <small>athletes</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="cmp-profile-labels-row" id="cmpProfileLabels" hidden>
+            <div class="cmp-profile-labels left"  id="cmpLabelsA"></div>
+            <div class="cmp-profile-labels right" id="cmpLabelsB"></div>
+          </div>
+
+          <!--
+            "At a Glance" and "Where They're Alike / Differ" used to live
+            here in the LEFT column as separate cards. They've been folded
+            into the Comparison Insight gemini card on the right so that
+            the side-by-side profile reads cleanly without three small
+            redundant blocks above and below it. The render code in
+            renderInsight() emits those sections inside #cmpInsightBody.
+          -->
+
+          <div class="card">
+            <div class="card__head">
+              <h3>Side-by-Side Profile</h3>
+            </div>
+            <div class="compare-rows" id="compareRows"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: comparison insight -->
+        <div class="gemini" id="cmpInsightCard">
+          <div class="gemini__head">
+            <span class="gemini__icon">
+              <img src="assets/img/google-gemini.svg" alt="" width="22" height="22" />
+            </span>
+            <span class="gemini__title">Comparison Insight</span>
+          </div>
+          <div class="gemini__body" id="cmpInsightBody" aria-live="polite"></div>
+          <div class="gemini__followup" id="cmpInsightFollow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPORT EXPLORER VIEW -->
+    <section class="view" data-view="sport">
+      <p class="view-intro">Pick a sport from the dropdown to see its national footprint, state spread, top hometown hubs, and Olympic and Paralympic split.</p>
+      <div class="parity-grid">
+        <div class="parity-left">
+
+          <!-- Pickers moved to the global filterbar above (#filterbarSport) so it matches the Atlas filter pattern -->
+
+          <!-- Sport Profile — KPI grid + Olympic/Paralympic split bar -->
+          <div class="card">
+            <div class="card__head">
+              <h3 id="sportNationalTitle">Sport Profile · National</h3>
+              <span class="meta tabular" id="sportProfileMeta">— state-sport rows</span>
+            </div>
+            <div class="sport-profile__body">
+              <div class="state-stats">
+                <div class="stat stat--accent">
+                  <div class="label">Athletes</div>
+                  <div class="value tabular"><span id="sportStatTotal">0</span></div>
+                  <div class="delta" id="sportStatTotalDelta">across the roster</div>
+                </div>
+                <div class="stat">
+                  <div class="label">States Represented</div>
+                  <div class="value tabular"><span id="sportStatStates">0</span></div>
+                  <div class="delta">distinct hometown states</div>
+                </div>
+                <div class="stat stat--paralympic">
+                  <div class="label">Paralympic Share</div>
+                  <div class="value tabular"><span id="sportStatPara">0</span><span>%</span></div>
+                  <div class="delta">of athletes in this sport</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Top State Share</div>
+                  <div class="value tabular"><span id="sportStatTopShare">0</span><span>%</span></div>
+                  <div class="delta" id="sportStatTopName">—</div>
+                </div>
+                <div class="stat">
+                  <div class="label">Hubs Represented</div>
+                  <div class="value tabular"><span id="sportStatHubs">0</span></div>
+                  <div class="delta" id="sportStatTopHub">distinct hometown hubs</div>
+                </div>
+                <div class="stat" title="Combined share of athletes from the 3 highest-rostered states for this sport.">
+                  <div class="label">Top 3 States Share</div>
+                  <div class="value tabular"><span id="sportStatTop3Share">0</span><span>%</span></div>
+                  <div class="delta" id="sportStatConcType">—</div>
+                </div>
+              </div>
+              <div class="sport-footprint-chip" id="sportFootprintChip" hidden>
+                <div class="sport-footprint-chip__main">
+                  <span class="sport-footprint-chip__label">Footprint Type</span>
+                  <span class="sport-footprint-chip__type" id="sportFootprintType">—</span>
+                </div>
+                <div class="sport-footprint-chip__detail" id="sportFootprintDetail"></div>
+                <div class="sport-footprint-chip__caveat">Describes roster geography in the data, not sport access or athlete success.</div>
+              </div>
+              <div class="split-bar">
+                <div class="split-bar__seg--oly"  id="sportSplitOly"  style="width:0%"></div>
+                <div class="split-bar__seg--para" id="sportSplitPara" style="width:0%"></div>
+              </div>
+              <div class="split-bar-legend">
+                <span><i class="oly"></i>Olympic <span class="mono tabular" id="sportSplitOlyVal">0</span></span>
+                <span><i class="para"></i>Paralympic <span class="mono tabular" id="sportSplitParaVal">0</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top states + Sport Diversity bars (mirrors parity-bars-card) -->
+          <div class="card atlas-bars-card sport-bars-card">
+            <div class="atlas-bars-row">
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4 id="sportTopStatesTitle">Top States by Athletes · Track and Field</h4>
+                </div>
+                <div class="bar-list" id="sportTopStates"></div>
+              </div>
+              <div class="atlas-bars-col">
+                <div class="atlas-bars-head">
+                  <h4>Top States by Sport Variety</h4>
+                </div>
+                <div class="bar-list" id="sportDiversityList"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Hometown Hubs for This Sport -->
+          <div class="card sport-hubs-card" id="sportHubsCard" hidden>
+            <div class="card__head">
+              <h3 id="sportHubsTitle">Top Hometown Hubs for This Sport</h3>
+            </div>
+            <div class="sport-hubs__list" id="sportHubsList"></div>
+          </div>
+        </div>
+
+        <div class="gemini parity-gemini" id="sportInsightCard">
+          <div class="gemini__head">
+            <span class="gemini__icon">
+              <img src="assets/img/google-gemini.svg" alt="" width="22" height="22" />
+            </span>
+            <span class="gemini__title">Sport Insight</span>
+          </div>
+          <div class="gemini__body" id="sportInsightBody" aria-live="polite"></div>
+          <div class="gemini__followup" id="sportInsightFollow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ASK THE ANALYST -->
+    <section class="view" data-view="ask">
+      <p class="view-intro">Ask aggregate questions about Team USA roster geography. Every answer shows the slice of the roster it drew from — no athlete names, no medal counts, no causal claims.</p>
+      <div class="ask-grid">
+        <div class="ask-thread">
+          <div class="ask-thread__head">
+            <button type="button" class="ask-newchat" id="askNewChat" aria-label="Start a new chat">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              <span>New chat</span>
+            </button>
+          </div>
+          <div class="ask-messages" id="askMessages" role="status" aria-live="polite"></div>
+          <div class="ask-input">
+            <div class="ask-input__chips" id="askQuickChips"></div>
+            <form class="ask-input__form" id="askForm" autocomplete="off" aria-label="Ask the analyst">
+              <label for="askInput" class="sr-only">Ask a question about hometown patterns</label>
+              <textarea id="askInput" placeholder="Ask about state hubs, season splits, parity, climate context" rows="1" aria-label="Ask a question about hometown patterns"></textarea>
+              <button class="btn btn--primary" type="submit">
+                Send
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="m13 5 7 7-7 7"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="ask-side">
+          <div class="card">
+            <div class="card__head">
+              <h3>Suggested Questions</h3>
+            </div>
+            <div class="ask-suggestion-list" id="askSuggestionList"></div>
+          </div>
+
+          <div class="card ask-policy">
+            <h4>What This Analyst Can Answer</h4>
+            <div class="policy-row ok">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <div class="lbl">Aggregate state &amp; city patterns
+                <small>e.g. "Which cities are the top hubs in Texas?"</small>
+              </div>
+            </div>
+            <div class="policy-row ok">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <div class="lbl">Sport / season splits
+                <small>e.g. "Where do most winter-sport athletes come from?"</small>
+              </div>
+            </div>
+            <div class="policy-row ok">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <div class="lbl">Paralympic representation
+                <small>"Which states have the most balanced Olympic / Paralympic split?"</small>
+              </div>
+            </div>
+            <div class="policy-row no">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              <div class="lbl">Athlete names or biographies
+                <small>declined &amp; rephrased without identifying anyone</small>
+              </div>
+            </div>
+            <div class="policy-row no">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              <div class="lbl">Medal counts as a state ranking
+                <small>medal data is not loaded; questions get redirected</small>
+              </div>
+            </div>
+            <div class="policy-row no">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              <div class="lbl">Causal claims about climate, geography, demographics
+                <small>answers reframe to "could suggest" / "may reflect"</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="view" data-view="methodology">
+      <p class="view-intro">How Team USA Atlas works — what it analyzes, how Gemini is integrated, the Responsible AI guardrails, and the evidence behind every answer.</p>
+      <div class="methodology-grid">
+        <nav class="methodology-toc" id="methToc">
+          <a href="#m-overview" class="active">What Atlas Analyzes</a>
+          <a href="#m-why">Why This Matters</a>
+          <a href="#m-gemini-static">How Gemini Is Used</a>
+          <a href="#m-responsible">Responsible AI Guardrails</a>
+          <a href="#m-sources">Data Sources</a>
+          <a href="#m-counts">How Counts Work</a>
+          <a href="#m-known">Known Limitations</a>
+          <a href="#m-evidence">Evidence Used</a>
+        </nav>
+
+        <div class="methodology-content">
+          <article class="card method-section" id="m-overview">
+            <h2>What Atlas Analyzes</h2>
+            <p class="lede">Team USA Atlas is a fan-centric analyst dashboard for the hometown geography of Team USA's roster. Around 5,000 athletes, all 50 states plus DC and the Virgin Islands, summer and winter sports, Olympic and Paralympic — surfaced through one consistent equal-frame view.</p>
+            <p>The unit of analysis is <strong>state</strong> (and within state, <strong>city hub</strong>). Counts are aggregate hometown participation totals, deduplicated per athlete so multi-discipline competitors aren't double-counted. Atlas does not load year, cycle, or per-Games timelines — it surfaces a current-roster footprint, not a historical archive. Every model-driven insight is paired with an <span class="mono accent">Evidence Used</span> block listing the data behind the prose.</p>
+          </article>
+
+          <article class="card method-section" id="m-why">
+            <h2>Why This Matters</h2>
+            <p>Geography tells a story raw counts and medal tables don't. Where athletes are <em>from</em> is a window into the communities, regions, and climates that may be associated with Team USA representation today — and the patterns are often very different across summer and winter, and across Olympic and Paralympic, programs.</p>
+            <p>Atlas is built around two beliefs: that Paralympic representation deserves the same surface as Olympic (Parity Lens is a top-level page, not a sub-tab), and that aggregate hometown patterns can be explored honestly without ever trading on individual athlete identity. The product never surfaces names, photos, ages, gender, medals, finish times, or per-event scores — only the geography.</p>
+          </article>
+
+          <article class="card method-section" id="m-gemini-static">
+            <h2>How Gemini Is Used</h2>
+            <p class="lede">Gemini is a writing layer, not a reasoning layer. The app computes every count, ranking, and roster filter first; only after that does <code>gemini-3.1-flash-lite</code> turn those compact, app-authored facts into a short, structured insight.</p>
+
+            <h3 class="method-subhead">Where Gemini Runs</h3>
+            <ul class="meth-list">
+              <li><strong>Atlas Regional Insight</strong> — a six-bullet readout of the current map view (filters + selected state) that names the leading state, top hometown hubs, season profile, and a few geography-aware observations in conditional language.</li>
+              <li><strong>Sport Insight</strong> — snapshot, concentration, hometown hubs, and program mix for the selected sport.</li>
+              <li><strong>Parity Insight</strong> — Paralympic representation, share floor, and dual-program presence under the active view.</li>
+              <li><strong>Comparison Insight</strong> — multi-section narrative for two states (at a glance, where they're alike, where they differ, most distinct contrast).</li>
+              <li><strong>Ask the Analyst</strong> — free-text questions that aren't a direct chip match are sent to Gemini with a small payload of pre-computed aggregate facts.</li>
+            </ul>
+
+            <h3 class="method-subhead">How a Gemini Call Flows</h3>
+            <ol class="meth-list">
+              <li><strong>Compute first.</strong> The app derives the numbers — totals, share percentages, top-N lists, season splits — directly from the loaded roster.</li>
+              <li><strong>Build a compact context.</strong> A small JSON payload (typically a few KB) is assembled with just the facts the model needs to write a useful sentence. No raw data, no athlete-level rows, no names.</li>
+              <li><strong>Call <code>gemini-3.1-flash-lite</code>.</strong> Via Google's <code>@google/genai</code> SDK with <code>responseMimeType: application/json</code>, an explicit <code>responseSchema</code> per task, <code>temperature: 0.2</code>, <code>topP: 0.8</code>, and <code>thinkingLevel: MINIMAL</code> for low-latency responses.</li>
+              <li><strong>Validate the response.</strong> A server-side validator checks the shape, array lengths, per-field word caps, and scans for banned phrasing. Anything that fails any check triggers the deterministic local insight instead.</li>
+              <li><strong>Render with a typewriter reveal.</strong> The card paints word-by-word so the experience feels alive. The same animation plays whether the prose came from Gemini or from the local fallback — the surface is intentionally identical so the experience never breaks.</li>
+            </ol>
+
+            <h3 class="method-subhead">Why a Local Fallback Exists</h3>
+            <p>The Gemini API is the writing layer; the deterministic templates are the safety net. If the API key is missing, the network is offline, the schema check fails, or a banned phrase is detected, the local insight renders without interruption — same typography, same animation, same evidence panel — so the dashboard is fully functional with or without a live Gemini connection.</p>
+
+            <h3 class="method-subhead">Where It Runs</h3>
+            <p>The production deployment lives on <strong>Google Cloud Run</strong> (<code>us-central1</code>) as a managed, scale-to-zero serverless service: Node 20 + Express containerised by Google Cloud Build directly from source, served over Google-managed HTTPS. The Gemini API key is injected as a Cloud Run service-config environment variable — encrypted at rest by Google, never bundled into the image and never sent to the browser. Local development boots the same Express runtime so behaviour is identical end-to-end.</p>
+          </article>
+
+          <article class="card method-section" id="m-responsible">
+            <h2>Responsible AI Guardrails</h2>
+            <p class="lede">Atlas is shaped end-to-end by the responsible-AI requirements of the challenge: conditional phrasing only, equal-frame Olympic and Paralympic, no individual outputs, and structured-output validation on every single Gemini call.</p>
+            <ul class="meth-list">
+              <li><strong>Conditional language only.</strong> Insights use <em>"could suggest," "may reflect," "is associated with," "historically aligns with"</em> — never <em>"causes," "produces," "guarantees,"</em> or <em>"because of."</em></li>
+              <li><strong>Banned-phrase scan.</strong> A server-side regex checks every Gemini response for ranking, prediction, and causation language — <em>best, worst, champions, winners, medals, medalists, podium, finish time, score, causes, leads to, results in, because of climate, pipeline, talent factory.</em> Any match triggers the deterministic fallback.</li>
+              <li><strong>No NIL, no individual outputs.</strong> Athlete names, photos, ages, gender, medals, finish times, and per-event scores are dropped during data cleaning. Gemini never sees them and never writes about them.</li>
+              <li><strong>Compact aggregate facts only.</strong> Each Gemini request carries a small JSON payload of pre-computed totals — never raw participation rows, never the full data set.</li>
+              <li><strong>Equal-frame Olympic + Paralympic.</strong> Both programs share every surface; Parity Lens is a top-level page, not a sub-tab.</li>
+              <li><strong>Server-side key.</strong> The Gemini API key lives in the local server's environment (<code>.env</code>) and is never sent to the browser.</li>
+              <li><strong>Schema-enforced output.</strong> Every Gemini call uses an explicit <code>responseSchema</code>; the local validator re-checks shape and per-field word caps before render.</li>
+              <li><strong>Out-of-scope questions decline politely.</strong> Ask the Analyst rephrases identity-seeking, performance-seeking, or causal-claim prompts toward what the roster geography can actually answer — and declines outright if it can't.</li>
+            </ul>
+
+            <h3 class="method-subhead">Allowed vs. Disallowed Language</h3>
+            <div class="compliance-grid">
+              <div class="compliance-col allow">
+                <h4>
+                  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                  Use These
+                </h4>
+                <ul>
+                  <li>"Could suggest"</li>
+                  <li>"May reflect"</li>
+                  <li>"Is associated with"</li>
+                  <li>"Historically aligns with"</li>
+                  <li>"Represented" / "appears" / "concentrates"</li>
+                  <li>"Footprint" / "composition"</li>
+                  <li>"Pattern, not prediction"</li>
+                  <li>"Aggregate hometown participation"</li>
+                  <li>"Equal-frame view"</li>
+                  <li>"Share of national"</li>
+                </ul>
+              </div>
+              <div class="compliance-col deny">
+                <h4>
+                  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                  Avoid These
+                </h4>
+                <ul>
+                  <li>"Best" / "produces" / "owns"</li>
+                  <li>"Winner" / "successful"</li>
+                  <li>"Improving" / "underperforming"</li>
+                  <li>"Predicts" / "guarantees performance"</li>
+                  <li>"Because of climate" / "talent factory"</li>
+                  <li>Athlete names, photographs, biographies</li>
+                  <li>Athlete ages, heights, gender, demographics</li>
+                  <li>Medals, finish times, scores, predictions</li>
+                  <li>Per-capita / per-1M / population-normalised metrics</li>
+                  <li>Year / cycle growth or trend claims</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="card method-section" id="m-sources">
+            <h2>Data Sources</h2>
+            <p class="lede">All sources are public. The cleaned roster surfaces only aggregate hometown patterns — no athlete names, no biographical attributes.</p>
+            <div class="source-table">
+              <div class="hd">
+                <div>Source</div><div>Type</div><div>What We Take</div><div>Status</div>
+              </div>
+              <div class="row"><div><span class="src">Team USA public roster</span></div><div>aggregate exports</div><div>Cleaned into per-state and per-city aggregates: hometown city + state, sport, season, program (Olympic / Paralympic). Athlete names, images, bios, ages, heights, and medal data are never retained.</div><div><span class="pill ok">current</span></div></div>
+              <div class="row"><div><span class="src">NOAA nClimDiv 1991–2020</span></div><div>climate normals</div><div>State-level annual + monthly temperature and precipitation. Surfaced as descriptive context only — never used as a causal signal. Public domain.</div><div><span class="pill ok">current</span></div></div>
+              <div class="row"><div><span class="src">us-atlas v3 (TopoJSON)</span></div><div>basemap geometry</div><div>State and national outlines for the choropleth and hometown-bubble layers. Public domain / ISC license.</div><div><span class="pill ok">current</span></div></div>
+              <div class="row"><div><span class="src">GeoNames US gazetteer</span></div><div>city coordinates</div><div>Lat/lng for hometown bubbles, precomputed against the basemap so the bubble overlay aligns with the state polygons. CC BY 4.0.</div><div><span class="pill ok">current</span></div></div>
+              <div class="row"><div><span class="src">Medal tables</span></div><div>not used</div><div>Medal counts, finish times, and per-event scores are excluded to avoid implicit ranking and out-of-scope claims.</div><div><span class="pill" style="color:var(--muted-2)">excluded</span></div></div>
+              <div class="row"><div><span class="src">Population &amp; per-capita data</span></div><div>not used</div><div>No Census or population denominators are joined. State counts are reported as raw aggregates and as <strong>share of national</strong>.</div><div><span class="pill" style="color:var(--muted-2)">excluded</span></div></div>
+            </div>
+          </article>
+
+          <article class="card method-section" id="m-counts">
+            <h2>How Counts Work</h2>
+            <aside class="method-callout">
+              <h4>Two Counting Modes</h4>
+              <p><strong>Unique athlete count:</strong> one athlete counted once, regardless of how many sports they appear in. Used by the Atlas choropleth, KPI tiles, and most state-level surfaces.</p>
+              <p><strong>Athlete-sport participation count:</strong> one row per athlete-sport relationship. Multi-discipline athletes contribute multiple rows. Used by Sport Explorer breakdowns so cross-discipline athletes show up under each sport they compete in.</p>
+              <p>Dual-classified athletes (Olympic <em>and</em> Paralympic) appear in <strong>both</strong> program splits, but they still count <strong>once</strong> in unique-athlete totals — which is why Olympic + Paralympic split totals can sum higher than the national unique total.</p>
+            </aside>
+            <dl class="method-counts-dl">
+              <dt>State total</dt>
+              <dd>Unique athletes whose hometown resolves to a given state.</dd>
+              <dt>Hometown total</dt>
+              <dd>Unique athletes whose hometown resolves to a given city hub.</dd>
+              <dt>Olympic / Paralympic split</dt>
+              <dd>Unique athletes per program. Dual-program athletes appear in both splits but count once in the unique total.</dd>
+              <dt>Summer / Winter split</dt>
+              <dd>Unique athletes per season. Cross-season athletes appear in both splits but count once in the unique total.</dd>
+              <dt>Paralympic share</dt>
+              <dd>Paralympic athletes ÷ total athletes for the same scope (state or hometown). Reported as a percentage. Describes <em>composition</em>: what fraction of the visible athletes are Paralympic.</dd>
+              <dt>Balance index</dt>
+              <dd>min(Olympic, Paralympic) ÷ max(Olympic, Paralympic) for the same scope. A 0–1 ratio where 1.00 = perfectly balanced and 0.00 = totally lopsided.</dd>
+              <dt>Share of national</dt>
+              <dd>Scope total ÷ national unique-athlete total. Reported as a percentage; no population denominator is joined.</dd>
+            </dl>
+          </article>
+
+          <article class="card method-section" id="m-known">
+            <h2>Known Limitations</h2>
+            <ul>
+              <li>Hometown ≠ training location. Many athletes are listed as being from somewhere different from where they trained or currently live; the "hub" view is biographical, not facility-driven.</li>
+              <li>Demographic signals (age, height, gender, ethnicity, socioeconomic background) are <strong>not</strong> joined. Patterns therefore over-represent factors that correlate with public hometown reporting.</li>
+              <li>Climate context is descriptive only. Atlas does not test, model, or imply a relationship between weather and performance.</li>
+              <li>Year and cycle trend analysis are out of scope — the cleaned roster is an aggregate snapshot, not a time series. Growth or decline statements should not be drawn from it.</li>
+              <li>Gemini writes from the compact context the app passes it. It does not retrieve from the open web at answer time.</li>
+            </ul>
+          </article>
+
+          <article class="card method-section" id="m-evidence">
+            <h2>Evidence Used</h2>
+            <p class="lede">Every chip, KPI, and analyst answer surfaces an <span class="mono accent">Evidence Used</span> block listing the underlying data the answer was composed from. The notation <span class="mono">file · 1,234 rows</span> means the answer was composed from 1,234 rows of that source as currently loaded — no other data is consulted.</p>
+            <div id="methSnapshot" class="evidence-snapshot"></div>
+            <div id="methEvidence" class="evidence-host"></div>
+          </article>
+
+          <div class="spacer-18"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- shared tooltip -->
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<!-- modals -->
+
+
+<script type="module" src="/assets/js/main.js"></script>
+</body>
+</html>

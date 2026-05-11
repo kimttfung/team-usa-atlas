@@ -1,0 +1,167 @@
+/* =========================================================
+   Team USA Atlas — base.css
+   Reset + base typography. Loaded first so every other
+   stylesheet inherits a consistent box model and font stack.
+   ========================================================= */
+
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { color-scheme: light; }
+[data-theme="dark"] html, html[data-theme="dark"] { color-scheme: dark; }
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+
+/* === A11Y A+ === */
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-to-content link — visible only on focus */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  background: var(--primary);
+  color: #FFFFFF;
+  padding: 10px 16px;
+  border-radius: var(--r-2, 8px);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  left: 12px;
+  top: 12px;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Prevent iOS zoom-on-focus by ensuring inputs are >= 16px on small screens,
+   while keeping the desktop look intact. */
+@media (max-width: 768px) {
+  input, select, textarea, button { font-size: max(14px, 1rem); }
+  #askInput { font-size: 16px; }
+}
+
+/* Reduced-motion: blanket guard in addition to existing per-element rules */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* === A11Y A+ — global focus-visible strategy =====================
+   One ring across every focusable control. Per-element rings already
+   declared in views.css remain authoritative (they often round to the
+   chip radius); this rule covers everything else without overriding.
+   ================================================================= */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* Inputs / selects / textareas read better with a soft halo */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px var(--primary-50);
+}
+/* SVG state regions on the choropleth */
+.map-state:focus-visible {
+  outline: none;
+  stroke: var(--primary);
+  stroke-width: 2.4;
+}
+/* Never strip focus from the skip-link */
+.skip-link:focus,
+.skip-link:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+
+
+/* === MOBILE A+ — global layout safeguards ========================
+   Use `overflow-x: clip` (NOT `hidden`) on both html and body. The
+   `clip` value visually clips horizontal overflow on narrow viewports
+   (preventing the dreaded "page can be swiped sideways") without
+   creating a new scroll container. `overflow-x: hidden` on html/body
+   silently auto-promotes overflow-y to `auto` and turns those elements
+   into scrollers, which breaks every `position: sticky` element in
+   the app shell — the topbar and filterbar end up scrolling away with
+   the page instead of staying pinned. `clip` keeps the document
+   scroll on the window where sticky expects it. */
+html, body { overflow-x: clip; }
+body { max-width: 100vw; }
+
+/* The HTML `hidden` attribute defaults to `display: none`, but any
+   element-level `display: flex/grid/inline-flex` rule wins by
+   specificity and silently re-shows the element. This caused stale
+   "Footprint Type" chips to remain visible on Sport Explorer after
+   pressing Reset. `!important` here guarantees that toggling
+   `el.hidden = true` actually hides the element across the app. */
+[hidden] { display: none !important; }
+
+/* Safe-area insets for sticky top elements on notched devices */
+.topbar    { padding-top: env(safe-area-inset-top); }
+.filterbar { padding-top: max(0px, env(safe-area-inset-top)); }
+.sidebar   { padding-bottom: env(safe-area-inset-bottom); }
+.main      { padding-bottom: max(56px, calc(56px + env(safe-area-inset-bottom))); }
+
+
+/* === Touch-target floor — 44×44 on touch viewports =============== */
+@media (max-width: 720px), (pointer: coarse) {
+  .btn,
+  .nav-item,
+  .theme-toggle,
+  .filter-reset,
+  .filter-chip,
+  .followup-chip,
+  .ask-suggestion,
+  .ask-newchat,
+  .atlas-lens__chip,
+  .atlas-similar__chip,
+  .parity-para-footprint__toggle,
+  .sport-empty-suggestions__chip,
+  .cmp-empty-suggestions__chip,
+  .ask-empty-suggestions__chip,
+  .filter-select,
+  .copy-btn,
+  .zoom-controls button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .filter-group { height: auto; min-height: 44px; }
+  .filter-select { padding-top: 6px; padding-bottom: 6px; }
+  .copy-btn { width: 44px; height: 44px; }
+}

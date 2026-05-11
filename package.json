@@ -1,0 +1,24 @@
+{
+  "name": "team-usa-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Hometown and sport pattern explorer for Team USA's roster.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/index.js",
+    "serve:static": "serve -l 8000 ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
+  "dependencies": {
+    "@google/genai": "^2.0.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
