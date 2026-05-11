@@ -3,6 +3,7 @@
 > **Pattern, not prediction — a fan-facing analyst dashboard for the hometown geography of Team USA, built on a constrained generation pipeline and deployed on Google Cloud.**
 
 🔗 **Live demo:** **<https://team-usa-atlas-331498991819.us-central1.run.app>**
+🎬 **Video walkthrough:** **<https://www.youtube.com/watch?v=1tQCAV8lZLM>**
 
 Team USA Atlas turns ~5,000 Olympic and Paralympic athletes into an
 interactive map of where Team USA actually comes from. Every state plus
@@ -185,23 +186,89 @@ below).
 
 ## Run It Locally
 
-Prerequisites: **Node 20+** (an `.nvmrc` is provided for use with nvm).
+If you'd rather skip setup entirely, the live demo is the best
+experience: **<https://team-usa-atlas-331498991819.us-central1.run.app>**
+runs the exact same server in production. The steps below let you run
+the same stack on your own machine.
+
+### Prerequisites
+
+- **Node 20 or newer.** Check with `node --version`. If you use
+  [nvm](https://github.com/nvm-sh/nvm), run `nvm use` from the repo
+  root — an `.nvmrc` is provided.
+- **A Gemini API key.** Free tier is more than enough. Get one in
+  about 30 seconds at <https://aistudio.google.com/apikey> — sign
+  in with any Google account, click *Create API key*, copy the
+  string (starts with `AIza…`).
+
+### Step-by-step
 
 ```bash
+# 1. Install dependencies
 npm install
-cp .env.example .env   # paste your GEMINI_API_KEY into .env
+
+# 2. Create your local env file from the template
+cp .env.example .env
+
+# 3. Open .env in any editor and paste your key into GEMINI_API_KEY=
+#    (leave GEMINI_MODEL and PORT at their defaults)
+
+# 4. Start the server
 npm run dev
 ```
 
-Then open <http://localhost:8000>.
+Then open **<http://localhost:8000>** in any modern browser.
 
-`npm run dev` boots an Express server in `server/` that hosts the
-static app on port 8000 and exposes the Gemini generation endpoint
-backed by `@google/genai`, plus a `/api/health` probe. The browser must
-use HTTP (not `file://`) because the app `fetch()`es its data files at
-runtime. Without `GEMINI_API_KEY`, the server still boots and every
-page stays fully functional — the AI surfaces just fall back to their
-deterministic local insights.
+### What `.env` should look like
+
+After step 3, your `.env` file should look like this (the key is
+just an example — paste your own):
+
+```bash
+GEMINI_API_KEY=AIzaSyA-your-actual-key-here
+GEMINI_MODEL=gemini-3.1-flash-lite
+PORT=8000
+```
+
+`.env` is in `.gitignore`, so your key is never committed. The key
+also stays server-side: it's only read by the Node process via
+`process.env.GEMINI_API_KEY` and is never sent to the browser.
+
+### Verify it's working
+
+With the server running, open a second terminal and hit the health
+endpoint:
+
+```bash
+curl http://localhost:8000/api/health
+# Expected:
+# {"ok":true,"hasKey":true,"model":"gemini-3.1-flash-lite"}
+```
+
+If `hasKey` is `true`, you're good — the four insight cards (Atlas,
+Sport, Parity, Compare) and Ask the Analyst will all use Gemini.
+
+### Common setup issues
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `hasKey: false` in `/api/health` | `.env` missing or key not pasted | Re-check step 2–3; make sure there is no quote around the key and no trailing space |
+| Insight cards always show local writeups | Same as above, or invalid key | Re-issue a key in AI Studio and paste it again |
+| Port 8000 already in use | Another process on `:8000` | Change `PORT=8001` in `.env`, then open <http://localhost:8001> |
+| `command not found: node` | Node not installed | Install Node 20+ from <https://nodejs.org/> |
+
+### What `npm run dev` actually does
+
+It boots an Express server in `server/` that hosts the static app on
+port 8000, exposes the Gemini generation endpoint
+(`POST /api/gemini/generate`) backed by `@google/genai`, and a
+`/api/health` probe. The browser must use HTTP (not `file://`)
+because the app `fetch()`es its data files at runtime.
+
+Even **without** `GEMINI_API_KEY`, the server still boots and every
+page stays fully functional — the AI surfaces just fall back to
+their deterministic local insights so the dashboard is never
+broken by a missing key.
 
 ## License
 
