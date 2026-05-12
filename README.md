@@ -3,6 +3,7 @@
 > **Pattern, not prediction — a fan-facing analyst dashboard for the hometown geography of Team USA, built on a constrained generation pipeline and deployed on Google Cloud.**
 
 🔗 **Live demo:** **<https://team-usa-atlas-331498991819.us-central1.run.app>**
+
 🎬 **Video walkthrough:** **<https://www.youtube.com/watch?v=1tQCAV8lZLM>**
 
 Team USA Atlas turns ~5,000 Olympic and Paralympic athletes into an
